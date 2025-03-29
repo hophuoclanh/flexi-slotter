@@ -1,7 +1,6 @@
 
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { isSupabaseConfigured } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
 
 type ProtectedRouteProps = {
@@ -12,11 +11,6 @@ type ProtectedRouteProps = {
 const ProtectedRoute = ({ children, requireAdmin = false }: ProtectedRouteProps) => {
   const { user, isLoading, isAdmin } = useAuth();
   const location = useLocation();
-
-  // If Supabase is not configured, redirect to the index page which will show the configuration error
-  if (!isSupabaseConfigured) {
-    return <Navigate to="/" replace />;
-  }
 
   if (isLoading) {
     return (

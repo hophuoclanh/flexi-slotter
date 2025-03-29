@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
 type AuthContextType = {
@@ -25,12 +25,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAdmin = profile?.role === 'admin';
 
   useEffect(() => {
-    // Skip Supabase operations if not configured
-    if (!isSupabaseConfigured) {
-      setIsLoading(false);
-      return;
-    }
-
     // Check for active session on initial load
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -85,15 +79,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
-    if (!isSupabaseConfigured) {
-      toast({
-        title: "Configuration Error",
-        description: "Supabase is not configured. Please set the required environment variables.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
@@ -112,15 +97,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    if (!isSupabaseConfigured) {
-      toast({
-        title: "Configuration Error",
-        description: "Supabase is not configured. Please set the required environment variables.",
-        variant: "destructive",
-      });
-      return;
-    }
-    
     try {
       const { data, error } = await supabase.auth.signUp({ 
         email, 
@@ -162,10 +138,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    if (!isSupabaseConfigured) {
-      return;
-    }
-    
     try {
       await supabase.auth.signOut();
       toast({
