@@ -1,11 +1,14 @@
-
+// App.tsx
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import UserRoute from "@/components/UserRoute";
+import AdminRoute from "@/components/AdminRoute";
+import HomeRedirect from "@/components/HomeRedirect"; // New component to handle root redirection
 
 // Pages
 import Login from "./pages/Login";
@@ -27,38 +30,45 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
-            <Route path="/" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/booking/:workspaceId?" element={
-              <ProtectedRoute>
-                <BookingPage />
-              </ProtectedRoute>
-            } />
+
+            {/* Shared route accessible by both roles */}
             <Route path="/profile" element={
               <ProtectedRoute>
                 <Profile />
               </ProtectedRoute>
             } />
+
+            {/* Default route: use an index route for the root */}
+            <Route index element={<HomeRedirect />} />
+
+            {/* User-only routes */}
+            <Route path="/dashboard" element={
+              <UserRoute>
+                <Dashboard />
+              </UserRoute>
+            } />
+            <Route path="/booking/:workspaceId?" element={
+              <UserRoute>
+                <BookingPage />
+              </UserRoute>
+            } />
+
+            {/* Admin-only routes */}
             <Route path="/admin" element={
-              <ProtectedRoute requireAdmin={true}>
+              <AdminRoute>
                 <AdminDashboard />
-              </ProtectedRoute>
+              </AdminRoute>
             } />
             <Route path="/admin/workspaces" element={
-              <ProtectedRoute requireAdmin={true}>
+              <AdminRoute>
                 <ManageWorkspaces />
-              </ProtectedRoute>
+              </AdminRoute>
             } />
+
+            {/* Catch-all route for unmatched paths */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

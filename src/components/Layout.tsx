@@ -36,14 +36,15 @@ const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: Building2 },
-    { name: 'Book Space', href: '/booking', icon: Calendar },
-    ...(isAdmin ? [
+  const navigation = isAdmin 
+  ? [
       { name: 'Admin Dashboard', href: '/admin', icon: Settings },
       { name: 'Manage Workspaces', href: '/admin/workspaces', icon: Settings },
-    ] : []),
-  ];
+    ]
+  : [
+      { name: 'Dashboard', href: '/dashboard', icon: Building2 },
+      { name: 'Book Space', href: '/booking', icon: Calendar },
+    ];
 
   const NavLink = ({ item }: { item: typeof navigation[0] }) => {
     const isActive = location.pathname === item.href;

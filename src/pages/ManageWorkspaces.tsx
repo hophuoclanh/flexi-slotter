@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -48,12 +47,44 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase, Workspace } from "@/lib/supabase";
 
+// Define the form schema
 const formSchema = z.object({
   name: z.string().min(2, { message: "Workspace name must be at least 2 characters" }),
   capacity: z.coerce.number().min(1, { message: "Capacity must be at least 1" }),
 });
-
 type FormValues = z.infer<typeof formSchema>;
+
+// Helper function to create default slots for a new workspace
+const createDefaultSlots = async (workspaceId: number) => {
+  // Create slots for the next day
+  const slotDateObj = new Date();
+  slotDateObj.setDate(slotDateObj.getDate() + 1);
+  const slotDate = slotDateObj.toISOString().split("T")[0]; // YYYY-MM-DD
+
+  // Define default times (9:00 AM to 4:00 PM, hourly)
+  const times = [
+    "09:00:00",
+    "10:00:00",
+    "11:00:00",
+    "12:00:00",
+    "13:00:00",
+    "14:00:00",
+    "15:00:00",
+    "16:00:00",
+  ];
+
+  const defaultSlots = times.map((time) => ({
+    slot_date: slotDate,
+    slot_time: time,
+    workspace_id: workspaceId,
+    status: "available",
+  }));
+
+  const { error } = await supabase.from("slots").insert(defaultSlots);
+  if (error) {
+    throw error;
+  }
+};
 
 const ManageWorkspaces = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -132,13 +163,15 @@ const ManageWorkspaces = () => {
           description: `${data.name} has been updated successfully.`,
         });
       } else {
-        // Create new workspace
-        const { error } = await supabase
+        // Create new workspace and get the created record
+        const { data: newWorkspace, error } = await supabase
           .from('workspaces')
           .insert([{
             name: data.name,
             capacity: data.capacity,
-          }]);
+          }])
+          .select()
+          .single();
           
         if (error) throw error;
         
@@ -148,8 +181,7 @@ const ManageWorkspaces = () => {
         });
         
         // Create some default slots for the new workspace
-        // In a real app, you'd have a more comprehensive slot creation system
-        // createDefaultSlots(data.id);
+        await createDefaultSlots(newWorkspace.id);
       }
       
       // Refresh workspace list

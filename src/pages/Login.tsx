@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -25,6 +24,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
+// Define the User type to include a role property
+interface User {
+  role: "admin" | "user";
+  // Add additional properties if needed
+}
+
 const Login = () => {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -42,14 +47,18 @@ const Login = () => {
   const onSubmit = async (data: FormValues) => {
     setIsLoading(true);
     try {
-      await signIn(data.email, data.password);
-      navigate("/dashboard");
+      const sessionUser = await signIn(data.email, data.password);
+      if (sessionUser?.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
-      console.error("Login error:", error);
+      // Handle error if needed
     } finally {
       setIsLoading(false);
     }
-  };
+  };  
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4">
@@ -70,10 +79,10 @@ const Login = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="yourname@example.com" 
-                        type="email" 
-                        {...field} 
+                      <Input
+                        placeholder="yourname@example.com"
+                        type="email"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -88,10 +97,10 @@ const Login = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Your password" 
-                        type="password" 
-                        {...field} 
+                      <Input
+                        placeholder="Your password"
+                        type="password"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -108,8 +117,8 @@ const Login = () => {
           <div className="mt-6 text-center text-sm">
             <p>
               Don't have an account?{" "}
-              <Link 
-                to="/signup" 
+              <Link
+                to="/signup"
                 className="font-semibold text-primary hover:text-primary/80"
               >
                 Sign up

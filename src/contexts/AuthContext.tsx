@@ -4,12 +4,17 @@ import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 
+// You can place this in your auth context or a shared types file
+interface ExtendedUser extends User {
+  role: "admin" | "user";
+}
+
 type AuthContextType = {
   user: User | null;
   profile: { full_name: string | null; role: string | null } | null;
   isLoading: boolean;
   isAdmin: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<ExtendedUser | null>;
   signUp: (email: string, password: string, fullName: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -78,14 +83,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<ExtendedUser | null> => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully signed in.",
-      });
+      if (data.session) {
+        // Fetch the profile
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('full_name, role')
+          .eq('id', data.session.user.id)
+          .single();
+        if (profileError) throw profileError;
+        // Update the profile state if needed
+        setProfile(profileData);
+        return { ...data.session.user, role: profileData.role } as ExtendedUser;
+      }
+      return null;
     } catch (error: any) {
       toast({
         title: "Sign in failed",
@@ -94,7 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       throw error;
     }
-  };
+  };  
 
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
