@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -122,7 +121,12 @@ const BookingPage = () => {
     setIsBooking(true);
     
     try {
-      // Create booking
+      // Calculate the check-in deadline by adding a 5-minute grace period to the slot time.
+      const bookingDateTime = new Date(`${selectedSlot.slot_date}T${selectedSlot.slot_time}`);
+      const gracePeriodMs = 5 * 60 * 1000; // 5 minutes in milliseconds
+      const checkInDeadline = new Date(bookingDateTime.getTime() + gracePeriodMs);
+
+      // Create booking with the check_in_deadline field
       const { data, error } = await supabase
         .from('bookings')
         .insert([
@@ -132,6 +136,7 @@ const BookingPage = () => {
             slot_id: selectedSlot.id,
             status: 'confirmed',
             no_show: false,
+            check_in_deadline: checkInDeadline.toISOString(),
           },
         ])
         .select()
@@ -139,7 +144,7 @@ const BookingPage = () => {
         
       if (error) throw error;
       
-      // Update slot status
+      // Update slot status to "booked"
       const { error: slotError } = await supabase
         .from('slots')
         .update({ status: 'booked' })

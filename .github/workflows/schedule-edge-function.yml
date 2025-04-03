@@ -1,0 +1,16 @@
+name: Schedule Edge Function
+
+on:
+  schedule:
+    # Run every 5 minutes
+    - cron: '*/5 * * * *'
+  workflow_dispatch: # allows manual trigger if needed
+
+jobs:
+  call-edge-function:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Mark No-Shows Edge Function
+        run: |
+          echo "Calling Edge Function..."
+          curl -X GET "https://your-project-ref.functions.supabase.co/mark-no-shows"
