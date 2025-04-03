@@ -1,6 +1,6 @@
 // src/pages/ManageSlots.tsx
 import React, { useState, useEffect } from 'react';
-import { supabase, Slot, Workspace } from '@/lib/supabase';
+import { supabase, Workspace } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +11,6 @@ const ManageSlots = () => {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(''); // Format: YYYY-MM-DD
-  const [slots, setSlots] = useState<Slot[]>([]);
   const [loading, setLoading] = useState(false);
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('17:00');
@@ -46,8 +45,6 @@ const ManageSlots = () => {
       .eq('slot_date', selectedDate);
     if (error) {
       console.error(error);
-    } else {
-      setSlots(data);
     }
     setLoading(false);
   };
@@ -138,26 +135,10 @@ const ManageSlots = () => {
         />
       </div>
       
+      <Button onClick={generateSlots}>Generate Slots</Button>
+      
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Existing Slots</h2>
-        {loading ? (
-          <p>Loading slots...</p>
-        ) : slots.length > 0 ? (
-          <div className="space-y-2">
-            {slots.map((slot) => (
-              <Card key={slot.id} className="p-4">
-                <CardHeader>
-                  <CardTitle>{slot.slot_time}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p>Status: {slot.status}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <p>No slots found for this workspace on the selected date.</p>
-        )}
       </div>
     </div>
   );

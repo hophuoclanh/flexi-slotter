@@ -64,23 +64,24 @@ const BookingPage = () => {
   const handleBook = async () => {
     if (!selectedDate || !workspaceId || !user) return;
     setIsBooking(true);
-
+  
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const newStartTime = new Date(`${dateStr}T${startTime}`);
-      const newEndTime = new Date(`${dateStr}T${endTime}`);
-
-      // Check for overlapping bookings on the same workspace
+      // Build local time strings directly from user inputs
+      const localStartTime = `${dateStr}T${startTime}`;
+      const localEndTime = `${dateStr}T${endTime}`;
+  
+      // Check for overlapping bookings using the local time strings
       const { data: conflicts, error: conflictError } = await supabase
         .from("bookings")
         .select("*")
         .eq("workspace_id", Number(workspaceId))
         .in("status", ["confirmed", "checked_in"])
         // Existing booking's start_time is before new booking's end_time
-        .lt("start_time", newEndTime.toISOString())
+        .lt("start_time", localEndTime)
         // Existing booking's end_time is after new booking's start_time
-        .gt("end_time", newStartTime.toISOString());
-
+        .gt("end_time", localStartTime);
+  
       if (conflictError) throw conflictError;
       if (conflicts && conflicts.length > 0) {
         toast({
@@ -90,21 +91,21 @@ const BookingPage = () => {
         });
         return;
       }
-
-      // Insert the booking without referencing a slot
+  
+      // Insert the booking using local time strings directly
       const { error: insertError } = await supabase.from("bookings").insert([
         {
           user_id: user.id,
           workspace_id: Number(workspaceId),
-          start_time: newStartTime.toISOString(),
-          end_time: newEndTime.toISOString(),
+          start_time: localStartTime,
+          end_time: localEndTime,
           status: "confirmed",
           no_show: false,
         },
       ]);
-
+  
       if (insertError) throw insertError;
-
+  
       toast({
         title: "Booking Successful",
         description: `You booked ${workspace?.name} from ${startTime} to ${endTime} on ${dateStr}.`,
@@ -119,7 +120,7 @@ const BookingPage = () => {
     } finally {
       setIsBooking(false);
     }
-  };
+  };  
 
   return (
     <Layout>
