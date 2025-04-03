@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -44,58 +43,32 @@ export interface Database {
           capacity?: number
         }
       }
-      slots: {
-        Row: {
-          id: number
-          slot_date: string
-          slot_time: string
-          workspace_id: number
-          status: string
-        }
-        Insert: {
-          id?: number
-          slot_date: string
-          slot_time: string
-          workspace_id: number
-          status: string
-        }
-        Update: {
-          id?: number
-          slot_date?: string
-          slot_time?: string
-          workspace_id?: number
-          status?: string
-        }
-      }
       bookings: {
         Row: {
           id: number
           user_id: string
           workspace_id: number
-          slot_id: number
           status: string
-          check_in_time: string | null
-          check_out_time: string | null
+          start_time: string | null
+          end_time: string | null
           no_show: boolean
         }
         Insert: {
           id?: number
           user_id: string
           workspace_id: number
-          slot_id: number
           status: string
-          check_in_time?: string | null
-          check_out_time?: string | null
+          start_time?: string | null
+          end_time?: string | null
           no_show?: boolean
         }
         Update: {
           id?: number
           user_id?: string
           workspace_id?: number
-          slot_id?: number
           status?: string
-          check_in_time?: string | null
-          check_out_time?: string | null
+          start_time?: string | null
+          end_time?: string | null
           no_show?: boolean
         }
       }

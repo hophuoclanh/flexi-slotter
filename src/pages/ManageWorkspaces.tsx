@@ -54,38 +54,6 @@ const formSchema = z.object({
 });
 type FormValues = z.infer<typeof formSchema>;
 
-// Helper function to create default slots for a new workspace
-const createDefaultSlots = async (workspaceId: number) => {
-  // Create slots for the next day
-  const slotDateObj = new Date();
-  slotDateObj.setDate(slotDateObj.getDate() + 1);
-  const slotDate = slotDateObj.toISOString().split("T")[0]; // YYYY-MM-DD
-
-  // Define default times (9:00 AM to 4:00 PM, hourly)
-  const times = [
-    "09:00:00",
-    "10:00:00",
-    "11:00:00",
-    "12:00:00",
-    "13:00:00",
-    "14:00:00",
-    "15:00:00",
-    "16:00:00",
-  ];
-
-  const defaultSlots = times.map((time) => ({
-    slot_date: slotDate,
-    slot_time: time,
-    workspace_id: workspaceId,
-    status: "available",
-  }));
-
-  const { error } = await supabase.from("slots").insert(defaultSlots);
-  if (error) {
-    throw error;
-  }
-};
-
 const ManageWorkspaces = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -179,9 +147,6 @@ const ManageWorkspaces = () => {
           title: "Workspace created",
           description: `${data.name} has been created successfully.`,
         });
-        
-        // Create some default slots for the new workspace
-        await createDefaultSlots(newWorkspace.id);
       }
       
       // Refresh workspace list

@@ -138,8 +138,6 @@ const ManageSlots = () => {
         />
       </div>
       
-      <Button onClick={generateSlots}>Generate Slots</Button>
-      
       <div className="mt-8">
         <h2 className="text-xl font-semibold mb-4">Existing Slots</h2>
         {loading ? (

@@ -1,57 +1,38 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
-import { 
-  Building2, 
-  Calendar, 
-  Clock, 
-  Info, 
-  Loader2 
-} from "lucide-react";
+import { Building2, Calendar, Clock, Info, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { supabase, Workspace, Slot } from "@/lib/supabase";
+import { supabase, Workspace } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
-
-type SlotWithWorkspace = Slot & {
-  workspace: Workspace;
-};
 
 const BookingPage = () => {
   const { workspaceId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [selectedSlot, setSelectedSlot] = useState<SlotWithWorkspace | null>(null);
-  const [isBooking, setIsBooking] = useState(false);
-  
-  // Fetch workspaces if no workspaceId is provided
+
+  // For workspace selection (when no workspaceId is provided)
   const { data: workspaces, isLoading: isLoadingWorkspaces } = useQuery({
     queryKey: ['workspaces'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('workspaces')
         .select('*');
-        
-      if (error) {
-        throw error;
-      }
-      
+      if (error) throw error;
       return data as Workspace[];
     },
     enabled: !workspaceId,
   });
-  
-  // Fetch single workspace if workspaceId is provided
+
+  // For a single workspace when workspaceId is provided
   const { data: workspace, isLoading: isLoadingWorkspace } = useQuery({
     queryKey: ['workspace', workspaceId],
     queryFn: async () => {
@@ -60,107 +41,78 @@ const BookingPage = () => {
         .select('*')
         .eq('id', workspaceId)
         .single();
-        
-      if (error) {
-        throw error;
-      }
-      
+      if (error) throw error;
       return data as Workspace;
     },
     enabled: !!workspaceId,
   });
-  
-  // Fetch available slots for selected date and workspace
-  const { data: availableSlots, isLoading: isLoadingSlots } = useQuery({
-    queryKey: ['availableSlots', selectedDate, workspaceId],
-    queryFn: async () => {
-      if (!selectedDate) return [];
-      
-      const formattedDate = format(selectedDate, 'yyyy-MM-dd');
-      
-      let query = supabase
-        .from('slots')
-        .select(`
-          *,
-          workspace: workspace_id (*)
-        `)
-        .eq('status', 'available')
-        .eq('slot_date', formattedDate);
-        
-      if (workspaceId) {
-        query = query.eq('workspace_id', workspaceId);
-      }
-      
-      const { data, error } = await query;
-        
-      if (error) {
-        throw error;
-      }
-      
-      return data as SlotWithWorkspace[];
-    },
-    enabled: !!selectedDate,
-  });
-  
+
+  // Booking form state
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [startTime, setStartTime] = useState("09:00");
+  const [endTime, setEndTime] = useState("10:00");
+  const [isBooking, setIsBooking] = useState(false);
+
   const handleSelectWorkspace = (id: number) => {
     navigate(`/booking/${id}`);
   };
-  
-  const handleDateChange = (date: Date | undefined) => {
-    setSelectedDate(date);
-    setSelectedSlot(null);
-  };
-  
-  const handleSelectSlot = (slot: SlotWithWorkspace) => {
-    setSelectedSlot(slot);
-  };
-  
-  const handleBookSlot = async () => {
-    if (!selectedSlot || !user) return;
-    
-    setIsBooking(true);
-    
-    try {
-      // Calculate the check-in deadline by adding a 5-minute grace period to the slot time.
-      const bookingDateTime = new Date(`${selectedSlot.slot_date}T${selectedSlot.slot_time}`);
-      const gracePeriodMs = 5 * 60 * 1000; // 5 minutes in milliseconds
-      const checkInDeadline = new Date(bookingDateTime.getTime() + gracePeriodMs);
 
-      // Create booking with the check_in_deadline field
-      const { data, error } = await supabase
-        .from('bookings')
-        .insert([
-          {
-            user_id: user.id,
-            workspace_id: selectedSlot.workspace_id,
-            slot_id: selectedSlot.id,
-            status: 'confirmed',
-            no_show: false,
-            check_in_deadline: checkInDeadline.toISOString(),
-          },
-        ])
-        .select()
-        .single();
-        
-      if (error) throw error;
-      
-      // Update slot status to "booked"
-      const { error: slotError } = await supabase
-        .from('slots')
-        .update({ status: 'booked' })
-        .eq('id', selectedSlot.id);
-        
-      if (slotError) throw slotError;
-      
+  const handleDateChange = (date: Date | undefined) => {
+    setSelectedDate(date || null);
+  };
+
+  const handleBook = async () => {
+    if (!selectedDate || !workspaceId || !user) return;
+    setIsBooking(true);
+
+    try {
+      const dateStr = format(selectedDate, "yyyy-MM-dd");
+      const newStartTime = new Date(`${dateStr}T${startTime}`);
+      const newEndTime = new Date(`${dateStr}T${endTime}`);
+
+      // Check for overlapping bookings on the same workspace
+      const { data: conflicts, error: conflictError } = await supabase
+        .from("bookings")
+        .select("*")
+        .eq("workspace_id", Number(workspaceId))
+        .in("status", ["confirmed", "checked_in"])
+        // Existing booking's start_time is before new booking's end_time
+        .lt("start_time", newEndTime.toISOString())
+        // Existing booking's end_time is after new booking's start_time
+        .gt("end_time", newStartTime.toISOString());
+
+      if (conflictError) throw conflictError;
+      if (conflicts && conflicts.length > 0) {
+        toast({
+          title: "Booking Conflict",
+          description: "The selected time is already booked.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Insert the booking without referencing a slot
+      const { error: insertError } = await supabase.from("bookings").insert([
+        {
+          user_id: user.id,
+          workspace_id: Number(workspaceId),
+          start_time: newStartTime.toISOString(),
+          end_time: newEndTime.toISOString(),
+          status: "confirmed",
+          no_show: false,
+        },
+      ]);
+
+      if (insertError) throw insertError;
+
       toast({
-        title: "Booking successful!",
-        description: `You have booked ${selectedSlot.workspace.name} on ${format(new Date(selectedSlot.slot_date), 'MMM dd, yyyy')} at ${selectedSlot.slot_time}`,
+        title: "Booking Successful",
+        description: `You booked ${workspace?.name} from ${startTime} to ${endTime} on ${dateStr}.`,
       });
-      
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (error: any) {
       toast({
-        title: "Booking failed",
+        title: "Booking Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -168,53 +120,36 @@ const BookingPage = () => {
       setIsBooking(false);
     }
   };
-  
-  const groupSlotsByWorkspace = (slots: SlotWithWorkspace[]) => {
-    return slots.reduce((acc, slot) => {
-      const workspaceId = slot.workspace_id;
-      if (!acc[workspaceId]) {
-        acc[workspaceId] = {
-          workspace: slot.workspace,
-          slots: [],
-        };
-      }
-      acc[workspaceId].slots.push(slot);
-      return acc;
-    }, {} as Record<number, { workspace: Workspace; slots: SlotWithWorkspace[] }>);
-  };
-  
+
   return (
     <Layout>
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Book a Workspace</h1>
           <p className="text-muted-foreground mt-2">
-            Select a date, workspace, and time slot to make your reservation.
+            Select a date and specify your desired start and end times.
           </p>
         </div>
-        
+
+        {/* If no workspace is selected, show the workspace list */}
         {!workspaceId && !isLoadingWorkspaces && (
           <div className="space-y-4">
             <h2 className="text-xl font-semibold tracking-tight">Select a Workspace</h2>
-            
             {workspaces && workspaces.length > 0 ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {workspaces.map((workspace) => (
-                  <Card key={workspace.id} className="overflow-hidden">
+                {workspaces.map((ws) => (
+                  <Card key={ws.id} className="overflow-hidden">
                     <div className="aspect-video w-full bg-muted">
                       <div className="flex h-full w-full items-center justify-center bg-secondary/60">
                         <Building2 className="h-12 w-12 text-secondary-foreground/60" />
                       </div>
                     </div>
                     <CardHeader>
-                      <CardTitle>{workspace.name}</CardTitle>
-                      <CardDescription>Capacity: {workspace.capacity}</CardDescription>
+                      <CardTitle>{ws.name}</CardTitle>
+                      <CardDescription>Capacity: {ws.capacity}</CardDescription>
                     </CardHeader>
                     <CardFooter>
-                      <Button 
-                        className="w-full" 
-                        onClick={() => handleSelectWorkspace(workspace.id)}
-                      >
+                      <Button className="w-full" onClick={() => handleSelectWorkspace(ws.id)}>
                         Select
                       </Button>
                     </CardFooter>
@@ -231,7 +166,8 @@ const BookingPage = () => {
             )}
           </div>
         )}
-        
+
+        {/* When a workspace is selected (or loading), display its details and the booking form */}
         {(workspaceId || isLoadingWorkspace) && (
           <>
             {isLoadingWorkspace ? (
@@ -249,113 +185,74 @@ const BookingPage = () => {
                     <CardDescription>Capacity: {workspace.capacity}</CardDescription>
                   </CardHeader>
                 </Card>
-                
-                <div className="flex flex-col gap-8 lg:flex-row">
-                  <Card className="flex-1">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Calendar className="h-5 w-5" />
-                        <span>Select Date</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex justify-center">
-                        <CalendarComponent
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={handleDateChange}
-                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                          className="rounded-md border"
-                        />
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card className="flex-1">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Clock className="h-5 w-5" />
-                        <span>Available Time Slots</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {isLoadingSlots ? (
-                        <div className="flex items-center justify-center p-8">
-                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        </div>
-                      ) : availableSlots && availableSlots.length > 0 ? (
-                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                          {availableSlots.map((slot) => (
-                            <Button
-                              key={slot.id}
-                              variant={selectedSlot?.id === slot.id ? "default" : "outline"}
-                              className={cn(
-                                "h-auto py-4",
-                                selectedSlot?.id === slot.id && "ring-2 ring-primary"
-                              )}
-                              onClick={() => handleSelectSlot(slot)}
-                            >
-                              {slot.slot_time}
-                            </Button>
-                          ))}
-                        </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5" />
+                      <span>Select Date</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex justify-center">
+                      <CalendarComponent
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={handleDateChange}
+                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        className="rounded-md border"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Clock className="h-5 w-5" />
+                      <span>Enter Desired Times</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex flex-col gap-4">
+                    <div>
+                      <label className="block mb-1">Start Time:</label>
+                      <Input
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-1">End Time:</label>
+                      <Input
+                        type="time"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                      />
+                    </div>
+                  </CardContent>
+                  <CardFooter>
+                    <Button onClick={handleBook} disabled={isBooking}>
+                      {isBooking ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Booking...
+                        </>
                       ) : (
-                        <Alert>
-                          <Info className="h-4 w-4" />
-                          <AlertDescription>
-                            No available slots for the selected date.
-                          </AlertDescription>
-                        </Alert>
+                        "Confirm Booking"
                       )}
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                {selectedSlot && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Booking Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-5 w-5 text-muted-foreground" />
-                          <span>{selectedSlot.workspace.name}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-5 w-5 text-muted-foreground" />
-                          <span>{format(new Date(selectedSlot.slot_date), 'MMMM dd, yyyy')}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock className="h-5 w-5 text-muted-foreground" />
-                          <span>{selectedSlot.slot_time}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                    <CardFooter>
-                      <Button 
-                        className="w-full"
-                        onClick={handleBookSlot}
-                        disabled={isBooking}
-                      >
-                        {isBooking ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Booking...
-                          </>
-                        ) : (
-                          "Confirm Booking"
-                        )}
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                )}
+                    </Button>
+                  </CardFooter>
+                </Card>
               </div>
             ) : (
               <Alert variant="destructive">
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Workspace not found. <Button variant="link" onClick={() => navigate('/booking')}>Go back</Button>
+                  Workspace not found.{" "}
+                  <Button variant="link" onClick={() => navigate("/booking")}>
+                    Go back
+                  </Button>
                 </AlertDescription>
               </Alert>
             )}
