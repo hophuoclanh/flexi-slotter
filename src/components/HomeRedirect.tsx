@@ -12,7 +12,7 @@ const HomeRedirect: React.FC = () => {
 
   if (!user) {
     // If not logged in, redirect to login
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/public-booking" replace />;
   }
 
   // If logged in, redirect based on role:

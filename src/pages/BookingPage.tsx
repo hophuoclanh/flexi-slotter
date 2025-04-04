@@ -8,16 +8,23 @@ import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase, Workspace } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import InteractiveSlotSelector from '@/components/InteractiveSlotSelector';
 
 const BookingPage = () => {
   const { workspaceId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // State for slot selection from InteractiveSlotSelector
+  const [selectedStartTime, setSelectedStartTime] = useState('');
+  const [selectedEndTime, setSelectedEndTime] = useState('');
+  // Selected date from calendar
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [isBooking, setIsBooking] = useState(false);
 
   // For workspace selection (when no workspaceId is provided)
   const { data: workspaces, isLoading: isLoadingWorkspaces } = useQuery({
@@ -47,52 +54,47 @@ const BookingPage = () => {
     enabled: !!workspaceId,
   });
 
-  // Booking form state
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [startTime, setStartTime] = useState("09:00");
-  const [endTime, setEndTime] = useState("10:00");
-  const [isBooking, setIsBooking] = useState(false);
-
   const handleSelectWorkspace = (id: number) => {
     navigate(`/booking/${id}`);
   };
 
   const handleDateChange = (date: Date | undefined) => {
     setSelectedDate(date || null);
+    // Reset the slot selection when the date changes
+    setSelectedStartTime('');
+    setSelectedEndTime('');
   };
 
   const handleBook = async () => {
-    if (!selectedDate || !workspaceId || !user) return;
+    if (!selectedDate || !workspaceId || !user || !selectedStartTime || !selectedEndTime) return;
     setIsBooking(true);
   
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
-      // Build local time strings directly from user inputs
-      const localStartTime = `${dateStr}T${startTime}`;
-      const localEndTime = `${dateStr}T${endTime}`;
+      // Build local time strings directly from the interactive slot selection
+      const localStartTime = `${dateStr}T${selectedStartTime}`;
+      const localEndTime = `${dateStr}T${selectedEndTime}`;
   
       // Check for overlapping bookings using the local time strings
-      const { data: conflicts, error: conflictError } = await supabase
+      const { count: conflictCount, error: conflictError } = await supabase
         .from("bookings")
-        .select("*")
+        .select("*", { count: "exact", head: true })
         .eq("workspace_id", Number(workspaceId))
         .in("status", ["confirmed", "checked_in"])
-        // Existing booking's start_time is before new booking's end_time
         .lt("start_time", localEndTime)
-        // Existing booking's end_time is after new booking's start_time
         .gt("end_time", localStartTime);
   
       if (conflictError) throw conflictError;
-      if (conflicts && conflicts.length > 0) {
+      if (conflictCount !== null && workspace && conflictCount >= workspace.quantity) {
         toast({
           title: "Booking Conflict",
-          description: "The selected time is already booked.",
+          description: "The facility is fully booked during the selected time.",
           variant: "destructive",
         });
         return;
       }
-  
-      // Insert the booking using local time strings directly
+      
+      // Insert the booking using the local time strings from the interactive slot selector
       const { error: insertError } = await supabase.from("bookings").insert([
         {
           user_id: user.id,
@@ -108,7 +110,7 @@ const BookingPage = () => {
   
       toast({
         title: "Booking Successful",
-        description: `You booked ${workspace?.name} from ${startTime} to ${endTime} on ${dateStr}.`,
+        description: `You booked ${workspace?.name} from ${selectedStartTime} to ${selectedEndTime} on ${dateStr}.`,
       });
       navigate("/dashboard");
     } catch (error: any) {
@@ -120,7 +122,7 @@ const BookingPage = () => {
     } finally {
       setIsBooking(false);
     }
-  };  
+  };
 
   return (
     <Layout>
@@ -128,7 +130,7 @@ const BookingPage = () => {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Book a Workspace</h1>
           <p className="text-muted-foreground mt-2">
-            Select a date and specify your desired start and end times.
+            Select a date and choose your desired time slot.
           </p>
         </div>
 
@@ -200,7 +202,9 @@ const BookingPage = () => {
                         mode="single"
                         selected={selectedDate}
                         onSelect={handleDateChange}
-                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        disabled={(date) =>
+                          date < new Date(new Date().setHours(0, 0, 0, 0))
+                        }
                         className="rounded-md border"
                       />
                     </div>
@@ -211,29 +215,38 @@ const BookingPage = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Clock className="h-5 w-5" />
-                      <span>Enter Desired Times</span>
+                      <span>Select Slot</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="flex flex-col gap-4">
-                    <div>
-                      <label className="block mb-1">Start Time:</label>
-                      <Input
-                        type="time"
-                        value={startTime}
-                        onChange={(e) => setStartTime(e.target.value)}
+                  <CardContent>
+                    {selectedDate ? (
+                      <InteractiveSlotSelector
+                        selectedDate={selectedDate}
+                        onSelectionChange={(start, end) => {
+                          setSelectedStartTime(start);
+                          setSelectedEndTime(end);
+                        }}
                       />
-                    </div>
-                    <div>
-                      <label className="block mb-1">End Time:</label>
-                      <Input
-                        type="time"
-                        value={endTime}
-                        onChange={(e) => setEndTime(e.target.value)}
-                      />
-                    </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Please select a date first.</p>
+                    )}
                   </CardContent>
                   <CardFooter>
-                    <Button onClick={handleBook} disabled={isBooking}>
+                    {selectedStartTime && selectedEndTime ? (
+                      <div className="text-sm text-muted-foreground">
+                        Booking from {selectedStartTime} to {selectedEndTime}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">
+                        No slot selected.
+                      </div>
+                    )}
+                  </CardFooter>
+                </Card>
+
+                <Card>
+                  <CardFooter>
+                    <Button onClick={handleBook} disabled={isBooking || !selectedStartTime || !selectedEndTime}>
                       {isBooking ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

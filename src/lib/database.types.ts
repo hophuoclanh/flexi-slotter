@@ -28,19 +28,22 @@ export interface Database {
       }
       workspaces: {
         Row: {
-          id: number
-          name: string
-          capacity: number
+          id: number;
+          name: string;
+          capacity: number;
+          quantity: number;
         }
         Insert: {
-          id?: number
-          name: string
-          capacity: number
+          id?: number;
+          name: string;
+          capacity: number;
+          quantity?: number;
         }
         Update: {
-          id?: number
-          name?: string
-          capacity?: number
+          id?: number;
+          name?: string;
+          capacity?: number;
+          quantity?: number;
         }
       }
       bookings: {

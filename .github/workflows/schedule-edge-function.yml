@@ -13,4 +13,4 @@ jobs:
       - name: Call Mark No-Shows Edge Function
         run: |
           echo "Calling Edge Function..."
-          curl -X GET "https://your-project-ref.functions.supabase.co/mark-no-shows"
+          curl -X GET "https://rujjxcaqavwbkcxiwlqv.supabase.co/functions/v1/mark-no-shows"

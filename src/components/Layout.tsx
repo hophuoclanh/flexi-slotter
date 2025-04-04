@@ -1,50 +1,50 @@
-
-import { ReactNode } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { 
-  Building2, 
-  Calendar, 
-  ChevronDown, 
-  CircleUser, 
-  LogOut, 
-  Menu, 
-  PanelLeftClose, 
-  Settings, 
-  User 
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { useAuth } from '@/contexts/AuthContext';
-import { useIsMobile } from '@/hooks/use-mobile';
+// layout.tsx
+import { ReactNode } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Building2,
+  Calendar,
+  ChevronDown,
+  CircleUser,
+  LogOut,
+  Menu,
+  Settings,
+  User,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LayoutProps {
   children: ReactNode;
+  hideSidebar?: boolean;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout = ({ children, hideSidebar = false }: LayoutProps) => {
   const { user, profile, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  const navigation = isAdmin 
-  ? [
-      { name: 'Admin Dashboard', href: '/admin', icon: Settings },
-      { name: 'Manage Workspaces', href: '/admin/workspaces', icon: Settings },
-    ]
-  : [
-      { name: 'Dashboard', href: '/dashboard', icon: Building2 },
-      { name: 'Book Space', href: '/booking', icon: Calendar },
-    ];
+  const navigation = isAdmin
+    ? [
+        { name: "Admin Dashboard", href: "/admin", icon: Settings },
+        { name: "Manage Workspaces", href: "/admin/workspaces", icon: Settings },
+      ]
+    : [
+        { name: "Dashboard", href: "/dashboard", icon: Building2 },
+        { name: "Book Space", href: "/booking", icon: Calendar },
+      ];
 
   const NavLink = ({ item }: { item: typeof navigation[0] }) => {
     const isActive = location.pathname === item.href;
@@ -52,10 +52,10 @@ const Layout = ({ children }: LayoutProps) => {
       <Link
         to={item.href}
         className={cn(
-          'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all',
+          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all",
           isActive
-            ? 'bg-primary text-primary-foreground'
-            : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
         )}
       >
         <item.icon className="h-4 w-4" />
@@ -86,8 +86,9 @@ const Layout = ({ children }: LayoutProps) => {
       </SheetContent>
     </Sheet>
   );
-  
-  const UserMenu = () => (
+
+  // The existing user menu for authenticated users
+  const AuthenticatedUserMenu = () => (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="flex items-center gap-2">
@@ -99,7 +100,7 @@ const Layout = ({ children }: LayoutProps) => {
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate('/profile')}>
+        <DropdownMenuItem onClick={() => navigate("/profile")}>
           <User className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
@@ -112,8 +113,19 @@ const Layout = ({ children }: LayoutProps) => {
     </DropdownMenu>
   );
 
+  // The public menu for non-authenticated users
+  const PublicUserMenu = () => (
+    <div className="flex items-center gap-2">
+      <Button variant="outline" onClick={() => navigate("/login")}>
+        Sign in
+      </Button>
+      <Button onClick={() => navigate("/signup")}>Sign up</Button>
+    </div>
+  );
+
   return (
     <div className="flex min-h-screen w-full flex-col">
+      {/* Header */}
       <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
         <div className="flex items-center gap-2">
           {isMobile ? (
@@ -125,14 +137,16 @@ const Layout = ({ children }: LayoutProps) => {
             </Link>
           )}
         </div>
-        
+
         <div className="ml-auto flex items-center gap-4">
-          <UserMenu />
+          {/* If user is logged in, show My Account dropdown; otherwise show Sign in / Sign up */}
+          {user ? <AuthenticatedUserMenu /> : <PublicUserMenu />}
         </div>
       </header>
-      
+
+      {/* Main Content with optional sidebar */}
       <div className="flex flex-1">
-        {!isMobile && (
+        {!isMobile && !hideSidebar && (
           <aside className="hidden w-64 flex-col border-r bg-background md:flex">
             <div className="flex flex-col gap-2 p-4">
               {navigation.map((item) => (
@@ -141,10 +155,7 @@ const Layout = ({ children }: LayoutProps) => {
             </div>
           </aside>
         )}
-        
-        <main className="flex-1 overflow-auto p-4 md:p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto p-4 md:p-6">{children}</main>
       </div>
     </div>
   );

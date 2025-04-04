@@ -8,17 +8,19 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import UserRoute from "@/components/UserRoute";
 import AdminRoute from "@/components/AdminRoute";
-import HomeRedirect from "@/components/HomeRedirect"; // New component to handle root redirection
+import HomeRedirect from "@/components/HomeRedirect";
 
 // Pages
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import BookingPage from "./pages/BookingPage";
+import PublicBookingPage from "./pages/PublicBookingPage"; // New public booking page
 import AdminDashboard from "./pages/AdminDashboard";
 import ManageWorkspaces from "./pages/ManageWorkspaces";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import BookingSuccess from "./pages/BookingSuccess";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +35,9 @@ const App = () => (
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
+            {/* New public booking route accessible without login */}
+            <Route path="/public-booking/:workspaceId?" element={<PublicBookingPage />} />
+            <Route path="/booking-success" element={<BookingSuccess />} />
 
             {/* Shared route accessible by both roles */}
             <Route path="/profile" element={
