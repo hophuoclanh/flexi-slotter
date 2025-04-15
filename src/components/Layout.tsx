@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Logo from "@/assets/logo.svg"; 
 
 interface LayoutProps {
   children: ReactNode;
@@ -75,7 +76,7 @@ const Layout = ({ children, hideSidebar = false }: LayoutProps) => {
       <SheetContent side="left" className="flex flex-col">
         <div className="px-2 py-4">
           <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-            FlexiSpace
+            South Ground
           </h2>
           <div className="space-y-1">
             {navigation.map((item) => (
@@ -116,24 +117,26 @@ const Layout = ({ children, hideSidebar = false }: LayoutProps) => {
   // The public menu for non-authenticated users
   const PublicUserMenu = () => (
     <div className="flex items-center gap-2">
-      <Button variant="outline" onClick={() => navigate("/login")}>
+      <Button className="hover:text-black" onClick={() => navigate("/login")}>
         Sign in
       </Button>
-      <Button onClick={() => navigate("/signup")}>Sign up</Button>
+      <Button className="hover:text-black"onClick={() => navigate("/signup")}>
+        Sign up
+      </Button>
     </div>
   );
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex min-h-screen w-full flex-col bg-primary">
       {/* Header */}
-      <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
+      <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-primary px-4 md:px-6">
         <div className="flex items-center gap-2">
           {isMobile ? (
             <MobileNav />
           ) : (
-            <Link to="/dashboard" className="flex items-center gap-2">
-              <Building2 className="h-6 w-6" />
-              <span className="text-xl font-bold">FlexiSpace</span>
+            <Link to="/" className="flex items-center gap-4">
+              <img src={Logo} alt="logo" className="w-9 h-9 object-contain" />
+              <span className="text-xl font-bold">South Ground</span>
             </Link>
           )}
         </div>
