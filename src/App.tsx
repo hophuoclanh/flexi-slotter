@@ -23,6 +23,7 @@ import ManageWorkspaces from "./pages/ManageWorkspaces";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import BookingSuccess from "./pages/BookingSuccess";
+import SinglePodSlots from "./pages/SinglePodSlots";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,8 @@ const App = () => (
 
             {/* Use the Home component for the landing page (new tab) */}
             <Route path="/" element={<Home />} />
+
+            <Route path="/single-pod-slots" element={<SinglePodSlots />} />
 
             {/* Shared route accessible by both roles */}
             <Route

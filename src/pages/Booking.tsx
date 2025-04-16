@@ -1,346 +1,117 @@
-import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { Building2, Calendar, Clock, Loader2 } from "lucide-react";
+import React from "react";
+import { Link } from "react-router-dom";
+import Tilt  from "react-parallax-tilt";
 
-// UI components (adjust paths as needed)
-import { Button } from "@/components/ui/button";
-import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import InteractiveSlotSelector from "@/components/InteractiveSlotSelector";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
-type PublicBookingFormValues = {
-  guestName: string;
-  guestEmail: string;
-  guestPhone: string;
-};
+import { styles } from "../styles";
+import { SectionWrapper } from "../hoc";
+import { fadeIn, textVariant } from "../utils/motion";
 
-const steps = ["Select Date", "Meeting Duration", "Confirm Meeting"];
+const images = [
+  {
+    src: "./single_pod/single_pod_2.jpg",
+    title: "Single Pod",
+    description: "A cozy workspace for one, perfect for focused work.",
+    link: "/single-pod-slots",
+  },
+  {
+    src: "./double_pod/double_pod_3.jpg",
+    title: "Double Pod",
+    description: "Room for two to collaborate or work side-by-side.",
+    link: "/double-pod-slots",
+  },
+  {
+    src: "./meeting_6/meeting_6_2.jpg",
+    title: "Meeting Room (6 pax)",
+    description: "Fully equipped space ideal for team meetings or small workshops.",
+    link: "/meeting-6-slots",
+  },
+  {
+    src: "./meeting_10/meeting_10_2.jpg",
+    title: "Meeting Room (10 pax)",
+    description: "Perfect for larger discussions, presentations, or group projects.",
+    link: "/meeting-10-slots",
+  },
+];
 
-const Booking = () => {
-  const { workspaceId } = useParams();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  // Track which step we’re on
-  const [currentStep, setCurrentStep] = useState(0);
-
-  // Data needed across steps
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [selectedStartTime, setSelectedStartTime] = useState("");
-  const [selectedEndTime, setSelectedEndTime] = useState("");
-
-  // Simulated loading/booking states
-  const [isLoadingWorkspace, setIsLoadingWorkspace] = useState(false);
-  const [workspace, setWorkspace] = useState<any>(null);
-  const [isBooking, setIsBooking] = useState(false);
-
-  // React Hook Form
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<PublicBookingFormValues>();
-
-  // Called only on final step submission
-  const onSubmit = (data: PublicBookingFormValues) => {
-    setIsBooking(true);
-    // Simulate an API booking call
-    setTimeout(() => {
-      setIsBooking(false);
-      console.log("Booking data:", {
-        ...data,
-        selectedDate,
-        selectedStartTime,
-        selectedEndTime,
-      });
-      toast({
-        title: "Booking Confirmed",
-        description: "Your workspace has been booked successfully.",
-      });
-      navigate("/booking-confirmation");
-    }, 2000);
-  };
-
-  // Fetch workspace data (simulate)
-  useEffect(() => {
-    if (workspaceId) {
-      setIsLoadingWorkspace(true);
-      // Simulate an API call delay
-      setTimeout(() => {
-        setWorkspace({ name: "Awesome Workspace", capacity: 20 });
-        setIsLoadingWorkspace(false);
-      }, 1000);
-    }
-  }, [workspaceId]);
-
-  // Go to next or previous steps
-  const goToNextStep = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-  };
-  const goToPreviousStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 0));
-  };
-
-  // Step indicator at the top (optional)
-  const StepIndicator = () => (
-    <div className="flex justify-center items-center gap-4 py-4">
-      {steps.map((label, index) => {
-        const isActive = index === currentStep;
-        return (
-          <div
-            key={index}
-            className={`flex items-center gap-2 ${
-              isActive ? "font-bold text-primary" : "opacity-70"
-            }`}
-          >
-            <div
-              className={`w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                isActive ? "border-primary" : "border-muted-foreground"
-              }`}
-            >
-              {index + 1}
-            </div>
-            <span>{label}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-
-  // Render content for each step
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 0:
-        return (
-          <>
-            {/* ----- STEP 1: Show Workspace & Date Selector ----- */}
-            {isLoadingWorkspace ? (
-              <div className="flex items-center justify-center p-8">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              </div>
-            ) : workspace ? (
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5" />
-                    <span>{workspace.name}</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Capacity: {workspace.capacity}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            ) : null}
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  <span>Select Date</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-center">
-                  <CalendarComponent
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => {
-                      setSelectedDate(date || null);
-                      // Reset times if user changes date
-                      setSelectedStartTime("");
-                      setSelectedEndTime("");
-                    }}
-                    disabled={(date) =>
-                      date < new Date(new Date().setHours(0, 0, 0, 0))
-                    }
-                    className="rounded-md border"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </>
-        );
-      case 1:
-        return (
-          <>
-            {/* ----- STEP 2: Slot Selection ----- */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  <span>Select Slot</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {selectedDate ? (
-                  <InteractiveSlotSelector
-                    selectedDate={selectedDate}
-                    onSelectionChange={(start, end) => {
-                      setSelectedStartTime(start);
-                      setSelectedEndTime(end);
-                    }}
-                  />
-                ) : (
-                  <p className="text-sm text-muted-foreground">
-                    Please select a date first.
-                  </p>
-                )}
-              </CardContent>
-              <CardFooter>
-                {selectedStartTime && selectedEndTime ? (
-                  <div className="text-sm text-muted-foreground">
-                    Booking from {selectedStartTime} to {selectedEndTime}
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">
-                    No slot selected.
-                  </div>
-                )}
-              </CardFooter>
-            </Card>
-          </>
-        );
-      case 2:
-        return (
-          <>
-            {/* ----- STEP 3: Guest Form + Final Submission ----- */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Guest Information</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground">
-                      Full Name
-                    </label>
-                    <Input
-                      {...register("guestName", { required: true })}
-                      placeholder="Your full name"
-                    />
-                    {errors.guestName && (
-                      <p className="text-sm text-destructive">
-                        Full name is required.
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground">
-                      Email
-                    </label>
-                    <Input
-                      {...register("guestEmail", { required: true })}
-                      placeholder="yourname@example.com"
-                      type="email"
-                    />
-                    {errors.guestEmail && (
-                      <p className="text-sm text-destructive">
-                        Email is required.
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground">
-                      Phone
-                    </label>
-                    <Input
-                      {...register("guestPhone", { required: true })}
-                      placeholder="Your phone number"
-                    />
-                    {errors.guestPhone && (
-                      <p className="text-sm text-destructive">
-                        Phone number is required.
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Button
-                type="submit"
-                disabled={
-                  isBooking || !selectedStartTime || !selectedEndTime
-                }
-              >
-                {isBooking ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Booking...
-                  </>
-                ) : (
-                  "Confirm Booking"
-                )}
-              </Button>
-            </form>
-          </>
-        );
-      default:
-        return null;
-    }
-  };
+const ImageCard = ({ index, image }) => {
+  const { src, title, description, link } = image;
 
   return (
-    <div>
-      {/* STEP INDICATOR */}
-      <StepIndicator />
+    <Tilt
+      className="xs:w-[250px] w-full"
+      tiltMaxAngleX={45}
+      tiltMaxAngleY={45}
+      scale={1}
+      transitionSpeed={450}
+    >
+      <div className="w-[300px] h-auto overflow-hidden rounded-[20px] shadow-md bg-white">
+        {/* The image */}
+        <motion.img
+          src={src}
+          alt={`img-${index}`}
+          variants={fadeIn("right", "spring", 0.5 * index, 0.75)}
+          className="w-full h-[300px] object-cover"
+        />
 
-      <div className="space-y-8 booking-page-bg px-6">
-        {/* Render the step-specific content */}
-        {renderStepContent()}
+        {/* Text and button section */}
+        <div className="p-4 bg-[#f6ebd3]">
+          <h3 className="text-lg font-bold mb-2 text-[#434343]">{title}</h3>
+          <p className="text-sm text-[#434343] mb-4">{description}</p>
 
-        {/* NAVIGATION BUTTONS AT BOTTOM (except final submission) */}
-        <div className="flex justify-between pt-4">
-          {/* Hide "Back" if on first step */}
-          {currentStep > 0 && (
-            <Button variant="outline" onClick={goToPreviousStep}>
-              Previous
-            </Button>
-          )}
-
-          {/* Hide "Next" if on last step (since that step has the final submission button) */}
-          {currentStep < steps.length - 1 && (
-            <Button
-              onClick={() => {
-                // For minimal validation, ensure date or slot is selected before next step:
-                if (currentStep === 0 && !selectedDate) {
-                  toast({
-                    title: "Select a date",
-                    description: "Please select a date before proceeding.",
-                  });
-                  return;
-                }
-
-                if (currentStep === 1 && (!selectedStartTime || !selectedEndTime)) {
-                  toast({
-                    title: "Select a slot",
-                    description: "Please select a start and end time.",
-                  });
-                  return;
-                }
-
-                // Everything is okay, go to next step
-                goToNextStep();
-              }}
+          {/* Book Now button */}
+          <Link to={link}>
+            <button
+              className="px-4 py-2 rounded-md bg-[#d4a373] text-white
+                        hover:opacity-90 transition-opacity"
             >
-              Next
-            </Button>
-          )}
+              Book Now
+            </button>
+          </Link>
         </div>
+      </div>
+    </Tilt>
+  );
+};
+
+const Booking = () => {
+  return (
+    <div className="px-64">
+      <motion.div variants={textVariant()}>
+        <h2 className={`${styles.sectionHeadText}`}>
+          Book Your <span className="text-[#d4a373]">Workspace</span>
+        </h2>
+      </motion.div>
+
+      <motion.p
+        variants={fadeIn("", "", 0.1, 1)}
+        className="mt-4 text-secondary text-[17px] max-w-3xl leading-[30px]"
+      >
+        At South Ground, we understand that no work style is the same.
+        That’s why we offer a range of thoughtfully designed workspaces — from
+        single pods to meeting rooms with fully equipped spaces.
+        Whether you're a freelancer, a startup team, or hosting a workshop, we’ve
+        got a spot that fits your needs. Explore our solutions and find the perfect
+        space to focus, collaborate, and grow.
+      </motion.p>
+
+      {/* 3. Map over our updated images array */}
+      <div className="flex flex-wrap gap-32 py-10">
+        {images.map((item, idx) => (
+          <motion.div
+            key={idx}
+            variants={fadeIn("right", "spring", 0.5 * idx, 0.75)}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+          >
+            <ImageCard image={item} index={idx} />
+          </motion.div>
+        ))}
       </div>
     </div>
   );
 };
 
-export default Booking;
+export default SectionWrapper(Booking, "Booking");

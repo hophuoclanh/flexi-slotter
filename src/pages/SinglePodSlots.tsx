@@ -1,4 +1,3 @@
-// PublicBookingPage.tsx
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { format } from "date-fns";
@@ -10,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { styles } from "../styles";
 import Slideshow from "@/components/Slideshow";
 import { navLinks } from "../constants";
+import BookingDateTimePicker from "@/components/BookingDateTimePicker";
 
 type PublicBookingFormValues = {
   guestName: string;
@@ -18,12 +18,12 @@ type PublicBookingFormValues = {
 };
 
 const homePageImages = [
-  "./home_page/home_page.jpg",
-  "./home_page/home_page_1.jpg",
-  "./home_page/home_page_2.jpg",
+  "./single_pod/single_pod_1.jpg",
+  "./single_pod/single_pod_2.jpg",
+  "./single_pod/single_pod_3.jpg",
 ];
 
-const PublicBookingPage = () => {
+const SinglePodSlots = () => {
   const { workspaceId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -65,12 +65,12 @@ const PublicBookingPage = () => {
       return;
     }
     setIsBooking(true);
-
+  
     try {
       const dateStr = format(selectedDate, "yyyy-MM-dd");
       const localStartTime = `${dateStr}T${selectedStartTime}`;
       const localEndTime = `${dateStr}T${selectedEndTime}`;
-
+  
       // Insert the booking with guest details. Note that user_id is null because
       // the guest isn't registered/authenticated.
       const { error: insertError } = await supabase.from("bookings").insert([
@@ -85,14 +85,14 @@ const PublicBookingPage = () => {
           no_show: false,
         },
       ]);
-
+  
       if (insertError) throw insertError;
-
+  
       toast({
         title: "Booking Successful",
         description: `You booked from ${selectedStartTime} to ${selectedEndTime} on ${dateStr}.`,
       });
-
+  
       // Navigate to the "BookingSuccess" page, passing data via state
       navigate("/booking-success", {
         state: {
@@ -112,40 +112,30 @@ const PublicBookingPage = () => {
       setIsBooking(false);
     }
   };
+  
 
   return (
     <Layout hideSidebar>
-      <div className="flex flex-col md:flex-row justify-center gap-20 md:gap-20 px-12 py-24 ">
-        <div className='flex flex-col items-center py-8'>
-          <div className='w-5 h-5 rounded-full bg-[#d4a373]' />
-          <div className='w-1 sm:h-80 h-40 violet-gradient' />
-        </div>
-
-        <div>
-          <h1 className={`${styles.heroHeadText} text-white`}>
-            Lets Find Your <br />
-            Perfect <span className='text-[#d4a373]'>Place to Work</span>
-          </h1>
-          <p className={`${styles.heroSubText} mt-2 text-white-100`}>
-            Book a space that fits your flow - from solo desks to team rooms.
-          </p>
-
-          <div className="mt-12 gap-4">
-            <a
-              href={`#${navLinks[0].id}`}  // This creates a link to "#booking"
-              className="px-8 py-3 bg-[#d4a373] rounded-md text-xl font-bold hover:bg-[#c29365] transition-colors"
-            >
-              Book Your Spot
-            </a>
-          </div>
-        </div>
-
+      <div className="flex flex-col md:flex-row justify-center gap-10 md:gap-10 px-32 py-10">
         <div className="w-full max-w-[575px]">
           <Slideshow images={homePageImages} interval={5000} />
+          <p className={`${styles.sectionSubText} text-center mt-8`}>
+            Single Pod: 45.000 VND / hour
+          </p>
+        </div>
+        <div className={`${styles.sectionSubText} max-w-10xl mx-auto flex flex-col`}>
+          <BookingDateTimePicker />
+          {/* Add more fields here (e.g., guests, room type, etc.) */}
+          <button 
+            className={`${styles.sectionSubText} mt-6 px-4 py-2 bg-[#d4a373] text-white rounded flex items-center justify-center mx-auto`}
+            style={{ width: "200px" }}
+          >
+            Book Now
+          </button>
         </div>
       </div>
     </Layout>
   );
 };
 
-export default PublicBookingPage;
+export default SinglePodSlots;

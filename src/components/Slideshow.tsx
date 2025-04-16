@@ -1,14 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const images = [
-  "single_pod.jpg",
-  "double_pod.jpg",
-  "meeting_6.jpg",
-  "meeting_10.jpg",
-];
+interface SlideshowProps {
+  images: string[];
+  interval?: number; // Interval in milliseconds
+}
 
-export default function Slideshow() {
+export default function Slideshow({ images, interval = 5000 }: SlideshowProps) {
   const [current, setCurrent] = useState(0);
 
   const prevSlide = () => {
@@ -16,16 +14,22 @@ export default function Slideshow() {
   };
 
   const nextSlide = () => {
-    setCurrent((prev) =>
-      prev === images.length - 1 ? 0 : prev + 1
-    );
+    setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
+
+  // Automatically change slide at a set interval
+  useEffect(() => {
+    const autoSlide = setInterval(() => {
+      nextSlide();
+    }, interval);
+
+    // Clear the interval when component unmounts or when dependencies change
+    return () => clearInterval(autoSlide);
+  }, [interval, images]);
 
   return (
     <>
-      {/* Slideshow container */}
-      <div className="relative w-full h-[500px] flex overflow-hidden">
-        {/* Slides */}
+      <div className="relative w-full h-[600px] flex overflow-hidden">
         {images.map((src, index) => (
           <div
             key={index}
@@ -41,7 +45,6 @@ export default function Slideshow() {
           </div>
         ))}
 
-        {/* Left arrow */}
         <button
           onClick={prevSlide}
           className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-60 p-2 rounded-full shadow-md"
@@ -49,7 +52,6 @@ export default function Slideshow() {
           <ChevronLeft />
         </button>
 
-        {/* Right arrow */}
         <button
           onClick={nextSlide}
           className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-60 p-2 rounded-full shadow-md"
@@ -58,7 +60,6 @@ export default function Slideshow() {
         </button>
       </div>
 
-      {/* Dot indicators placed below the slideshow */}
       <div className="w-full flex justify-center mt-4">
         {images.map((_, index) => (
           <span
