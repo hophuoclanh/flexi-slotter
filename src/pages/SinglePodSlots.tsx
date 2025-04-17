@@ -142,7 +142,7 @@ const SinglePodSlots = () => {
             animate="show"
             className={`${styles.sectionSubText} max-w-10xl mx-auto flex flex-col`}
           >
-            <BookingFlow/>
+            <BookingFlow workspace={workspace} />
           </motion.div>
         </div>
       </div>

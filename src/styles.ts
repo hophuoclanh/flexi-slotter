@@ -39,7 +39,7 @@ const styles = {
     },
 
     confirm_container: {
-      width: "800px",  // Set a fixed width
+      width: "700px",  // Set a fixed width
       maxWidth: "100%",
       margin: "0 auto",
       fontFamily: "Poppins",

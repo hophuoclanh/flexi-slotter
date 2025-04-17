@@ -13,7 +13,7 @@ const steps = [
   "Review & Book",
 ];
 
-export default function BookingFlow() {
+export default function BookingFlow({ workspace }: { workspace: any }) {
   const [currentStep, setCurrentStep] = useState(1);
 
   // booking state
@@ -87,6 +87,7 @@ export default function BookingFlow() {
             endTime={selectedEndTime}
             name={guestName}
             phone={guestPhone}
+            workspace={workspace?.name}
           />
         )}
       </div>
