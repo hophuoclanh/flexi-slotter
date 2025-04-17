@@ -41,7 +41,7 @@ const ImageCard = ({ index, image }) => {
   return (
     <Tilt
       className="xs:w-[250px] w-full"
-      tiltMaxAngleX={45}
+      tiltMaxAngleX={0}
       tiltMaxAngleY={45}
       scale={1}
       transitionSpeed={450}
@@ -114,4 +114,4 @@ const Booking = () => {
   );
 };
 
-export default SectionWrapper(Booking, "Booking");
+export default SectionWrapper(Booking, "booking");

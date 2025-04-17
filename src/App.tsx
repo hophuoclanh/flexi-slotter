@@ -24,6 +24,9 @@ import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import BookingSuccess from "./pages/BookingSuccess";
 import SinglePodSlots from "./pages/SinglePodSlots";
+import DoublePodSlots from "./pages/DoublePodSlots";
+import Meeting6Slots from "./pages/Meeting6Slots";
+import Meeting10Slots from "./pages/Meeting10Slots";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +48,11 @@ const App = () => (
             <Route path="/" element={<Home />} />
 
             <Route path="/single-pod-slots" element={<SinglePodSlots />} />
+            <Route path="/double-pod-slots" element={<DoublePodSlots />} />
+            <Route path="/meeting-6-slots" element={<Meeting6Slots />} />
+            <Route path="/meeting-10-slots" element={<Meeting10Slots />} />
+
+            {/* Protected Routes */}
 
             {/* Shared route accessible by both roles */}
             <Route

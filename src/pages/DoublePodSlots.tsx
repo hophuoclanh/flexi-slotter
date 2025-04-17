@@ -22,12 +22,12 @@ type PublicBookingFormValues = {
 };
 
 const homePageImages = [
-  "./single_pod/single_pod_1.jpg",
-  "./single_pod/single_pod_2.jpg",
-  "./single_pod/single_pod_3.jpg",
+  "./double_pod/double_pod_1.jpg",
+  "./double_pod/double_pod_2.jpg",
+  "./double_pod/double_pod_3.jpg",
 ];
 
-const SinglePodSlots = () => {
+const DoublePodSlots = () => {
   const { workspaceId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -131,7 +131,7 @@ const SinglePodSlots = () => {
           >
             <Slideshow images={homePageImages} interval={5000} />
             <p className={`${styles.sectionSubText} text-center mt-8`}>
-              Single Pod: 45.000 VND / hour
+              Double Pod: 75.000 VND / hour
             </p>
           </motion.div>
         </div>
@@ -150,4 +150,4 @@ const SinglePodSlots = () => {
   );
 };
 
-export default SinglePodSlots;
+export default DoublePodSlots;

@@ -28,12 +28,6 @@ const PublicBookingPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Slot/Date selections
-  const [selectedStartTime, setSelectedStartTime] = useState("");
-  const [selectedEndTime, setSelectedEndTime] = useState("");
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
-  const [isBooking, setIsBooking] = useState(false);
-
   // Fetch workspace details
   const {
     data: workspace,
@@ -51,67 +45,6 @@ const PublicBookingPage = () => {
     },
     enabled: !!workspaceId,
   });
-
-  // Guest info form
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<PublicBookingFormValues>();
-
-  // Booking submission
-  const onSubmit = async (guestData: PublicBookingFormValues) => {
-    if (!selectedDate || !workspaceId || !selectedStartTime || !selectedEndTime) {
-      return;
-    }
-    setIsBooking(true);
-
-    try {
-      const dateStr = format(selectedDate, "yyyy-MM-dd");
-      const localStartTime = `${dateStr}T${selectedStartTime}`;
-      const localEndTime = `${dateStr}T${selectedEndTime}`;
-
-      // Insert the booking with guest details. Note that user_id is null because
-      // the guest isn't registered/authenticated.
-      const { error: insertError } = await supabase.from("bookings").insert([
-        {
-          guest_name: guestData.guestName,
-          guest_email: guestData.guestEmail,
-          guest_phone: guestData.guestPhone,
-          workspace_id: Number(workspaceId),
-          start_time: localStartTime,
-          end_time: localEndTime,
-          status: "confirmed",
-          no_show: false,
-        },
-      ]);
-
-      if (insertError) throw insertError;
-
-      toast({
-        title: "Booking Successful",
-        description: `You booked from ${selectedStartTime} to ${selectedEndTime} on ${dateStr}.`,
-      });
-
-      // Navigate to the "BookingSuccess" page, passing data via state
-      navigate("/booking-success", {
-        state: {
-          guestEmail: guestData.guestEmail,
-          startTime: selectedStartTime,
-          endTime: selectedEndTime,
-          dateStr,
-        },
-      });
-    } catch (error: any) {
-      toast({
-        title: "Booking Failed",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsBooking(false);
-    }
-  };
 
   return (
     <Layout hideSidebar>
@@ -132,7 +65,7 @@ const PublicBookingPage = () => {
 
           <div className="mt-12 gap-4">
             <a
-              href={`#${navLinks[0].id}`}  // This creates a link to "#booking"
+              href='#booking' // This creates a link to "#booking"
               className="px-8 py-3 bg-[#d4a373] rounded-md text-xl font-bold hover:bg-[#c29365] transition-colors"
             >
               Book Your Spot

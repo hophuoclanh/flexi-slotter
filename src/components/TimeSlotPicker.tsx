@@ -243,7 +243,8 @@ const styles = {
     padding: "0.5rem",
     borderRadius: "4px",
     backgroundColor: "#f9f9f9",
-    margin: "0 4px"
+    margin: "0 4px",
+
   },
   dayBoxSelected: {
     backgroundColor: "#00AFFF",
