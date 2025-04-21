@@ -6,6 +6,7 @@ import GuestForm from "@/components/GuestForm";
 import ConfirmReview from "@/components/ConfirmReview";
 import { Button } from "@/components/ui/button";
 import { styles } from "../styles";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const steps = [
   "Choose Date & Time",
@@ -15,6 +16,15 @@ const steps = [
 
 export default function BookingFlow({ workspace }: { workspace: any }) {
   const [currentStep, setCurrentStep] = useState(1);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const workspaceOptions = [
+    { label: "Single Pod", path: "/single-pod-slots" },
+    { label: "Double Pod", path: "/double-pod-slots" },
+    { label: "Meeting Room 6", path: "/meeting-6-slots" },
+    { label: "Meeting Room 10", path: "/meeting-10-slots" },
+  ];
 
   // booking state
   const [selectedDate, setSelectedDate] = useState(null);
@@ -53,8 +63,28 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
   };
 
   return (
-    <div className=" max-w-3xl space-y-10 flex flex-col items-center text-center">
+    <div className="max-w-[1000px] space-y-10 flex flex-col items-center text-center">
       <Stepper steps={steps} currentStep={currentStep} />
+
+      <div className="grid grid-cols-4 gap-10 w-full">
+        {workspaceOptions.map((option) => {
+          const isActive = location.pathname === option.path;
+          return (
+            <Button
+              key={option.path}
+              variant="outline"
+              className={`w-full text-sm px-4 py-2 transition-all duration-200 ${
+                isActive
+                  ? "bg-black text-[#541919] font-semibold border border-[#541919]"
+                  : "hover:bg-[#f6ebd3]/60"
+              }`}
+              onClick={() => navigate(option.path)}
+            >
+              {option.label}
+            </Button>
+          );
+        })}
+      </div>
 
       <div className="space-y-6">
         {currentStep === 1 && (

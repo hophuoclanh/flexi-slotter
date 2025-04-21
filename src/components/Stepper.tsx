@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function Stepper({ steps = [], currentStep = 1 }) {
   return (
-    <div className="flex items-center justify-between bg-[var(--bg-color)] p-4 rounded-lg w-[950px]">
+    <div className="flex items-center justify-between bg-[var(--bg-color)] p-4 rounded-lg w-[1000px]">
       {steps.map((label, idx) => {
         const step = idx + 1;
         const isCompleted = step < currentStep;
