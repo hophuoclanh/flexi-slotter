@@ -27,8 +27,8 @@ const homePageImages = [
   "./double_pod/double_pod_3.jpg",
 ];
 
-const DoublePodSlots = () => {
-  const { workspaceId } = useParams();
+const SinglePodSlots = () => {
+  const workspaceId = 11;
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -39,10 +39,7 @@ const DoublePodSlots = () => {
   const [isBooking, setIsBooking] = useState(false);
 
   // Fetch workspace details
-  const {
-    data: workspace,
-    isLoading: isLoadingWorkspace,
-  } = useQuery({
+  const { data: workspace } = useQuery({
     queryKey: ["workspace", workspaceId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -51,9 +48,8 @@ const DoublePodSlots = () => {
         .eq("id", workspaceId)
         .single();
       if (error) throw error;
-      return data as Workspace;
+      return data;
     },
-    enabled: !!workspaceId,
   });
 
   // Guest info form
@@ -142,7 +138,11 @@ const DoublePodSlots = () => {
             animate="show"
             className={`${styles.sectionSubText} max-w-10xl mx-auto flex flex-col`}
           >
-            <BookingFlow/>
+            {!workspace ? (
+              <p className="text-center text-red-500">Workspace not found.</p>
+            ) : (
+              <BookingFlow workspace={workspace} />
+            )}
           </motion.div>
         </div>
       </div>
@@ -150,4 +150,4 @@ const DoublePodSlots = () => {
   );
 };
 
-export default DoublePodSlots;
+export default SinglePodSlots;

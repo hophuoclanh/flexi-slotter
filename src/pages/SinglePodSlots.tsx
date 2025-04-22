@@ -28,7 +28,7 @@ const homePageImages = [
 ];
 
 const SinglePodSlots = () => {
-  const { workspaceId } = useParams();
+  const workspaceId = 10;
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -39,10 +39,7 @@ const SinglePodSlots = () => {
   const [isBooking, setIsBooking] = useState(false);
 
   // Fetch workspace details
-  const {
-    data: workspace,
-    isLoading: isLoadingWorkspace,
-  } = useQuery({
+  const { data: workspace } = useQuery({
     queryKey: ["workspace", workspaceId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -51,9 +48,8 @@ const SinglePodSlots = () => {
         .eq("id", workspaceId)
         .single();
       if (error) throw error;
-      return data as Workspace;
+      return data;
     },
-    enabled: !!workspaceId,
   });
 
   // Guest info form
@@ -142,7 +138,11 @@ const SinglePodSlots = () => {
             animate="show"
             className={`${styles.sectionSubText} max-w-10xl mx-auto flex flex-col`}
           >
-            <BookingFlow workspace={workspace} />
+            {!workspace ? (
+              <p className="text-center text-red-500">Workspace not found.</p>
+            ) : (
+              <BookingFlow workspace={workspace} />
+            )}
           </motion.div>
         </div>
       </div>

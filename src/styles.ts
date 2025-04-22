@@ -98,12 +98,15 @@ const styles = {
       cursor: "pointer",
       padding: "0.5rem",
       borderRadius: "6px",
-      backgroundColor: "#d4a373",
-      margin: "12px"
+      backgroundColor: "#f6ebd3",
+      margin: "12px",
+      color: "#d4a373"
     },
+
     dayBoxSelected: {
-      backgroundColor: "#f9f9f9",
-      color: "black"
+      backgroundColor: "#f6ebd399",
+      color: "black",
+      fontWeight: "bold"
     },
     selectTimeHeading: {
       marginBottom: "0.5rem"

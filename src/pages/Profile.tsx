@@ -48,7 +48,7 @@ const Profile = () => {
     try {
       // Update profile in Supabase
       const { error } = await supabase
-        .from('profiles')
+        .from('users')
         .update({
           full_name: data.fullName,
         })

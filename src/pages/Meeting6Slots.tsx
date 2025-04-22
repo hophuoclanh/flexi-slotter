@@ -24,10 +24,11 @@ type PublicBookingFormValues = {
 const homePageImages = [
   "./meeting_6/meeting_6.jpg",
   "./meeting_6/meeting_6_1.jpg",
+  "./meeting_6/meeting_6_2.jpg",
 ];
 
-const Meeting6Slots = () => {
-  const { workspaceId } = useParams();
+const SinglePodSlots = () => {
+  const workspaceId = 12;
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -38,10 +39,7 @@ const Meeting6Slots = () => {
   const [isBooking, setIsBooking] = useState(false);
 
   // Fetch workspace details
-  const {
-    data: workspace,
-    isLoading: isLoadingWorkspace,
-  } = useQuery({
+  const { data: workspace } = useQuery({
     queryKey: ["workspace", workspaceId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -50,9 +48,8 @@ const Meeting6Slots = () => {
         .eq("id", workspaceId)
         .single();
       if (error) throw error;
-      return data as Workspace;
+      return data;
     },
-    enabled: !!workspaceId,
   });
 
   // Guest info form
@@ -141,7 +138,11 @@ const Meeting6Slots = () => {
             animate="show"
             className={`${styles.sectionSubText} max-w-10xl mx-auto flex flex-col`}
           >
-            <BookingFlow/>
+            {!workspace ? (
+              <p className="text-center text-red-500">Workspace not found.</p>
+            ) : (
+              <BookingFlow workspace={workspace} />
+            )}
           </motion.div>
         </div>
       </div>
@@ -149,4 +150,4 @@ const Meeting6Slots = () => {
   );
 };
 
-export default Meeting6Slots;
+export default SinglePodSlots;

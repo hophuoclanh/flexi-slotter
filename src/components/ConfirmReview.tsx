@@ -3,7 +3,7 @@ import React from "react";
 import { format } from "date-fns";
 import { styles } from "../styles"; // adjust the path
 
-export default function ConfirmReview({ date, startTime, endTime, name, phone, workspace }) {
+export default function ConfirmReview({ date, startTime, endTime, name, phone, workspace, pricePerHour, totalPrice}) {
   // Format the date nicely, e.g. “Wednesday, 23 April 2025”
   const formattedDate = date ? format(date, "EEEE, d MMMM yyyy") : "";
 
@@ -29,6 +29,10 @@ export default function ConfirmReview({ date, startTime, endTime, name, phone, w
           <span>
             {startTime} &ndash; {endTime}
           </span>
+        </div>
+        <div>
+          <span className="font-medium">Price:</span>{" "}
+          <span>{totalPrice.toLocaleString("vi-VN")}đ</span>
         </div>
         <div>
           <span className="font-medium">Name:</span>{" "}

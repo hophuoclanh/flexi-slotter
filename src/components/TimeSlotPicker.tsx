@@ -242,13 +242,13 @@ const styles = {
     cursor: "pointer",
     padding: "0.5rem",
     borderRadius: "4px",
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "black",
     margin: "0 4px",
 
   },
   dayBoxSelected: {
-    backgroundColor: "#00AFFF",
-    color: "#fff"
+    backgroundColor: "black",
+    color: "black"
   },
   selectTimeHeading: {
     marginBottom: "0.5rem"

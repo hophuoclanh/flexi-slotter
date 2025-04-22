@@ -1,4 +1,3 @@
-// components/BookingFlow.jsx
 import React, { useState } from "react";
 import Stepper from "./Stepper";
 import DateTimePicker from "@/components/BookingDateTimePicker";
@@ -7,12 +6,10 @@ import ConfirmReview from "@/components/ConfirmReview";
 import { Button } from "@/components/ui/button";
 import { styles } from "../styles";
 import { useNavigate, useLocation } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { format } from "date-fns";
 
-const steps = [
-  "Choose Date & Time",
-  "Your Info",
-  "Review & Book",
-];
+const steps = ["Choose Date & Time", "Your Info", "Review & Book"];
 
 export default function BookingFlow({ workspace }: { workspace: any }) {
   const [currentStep, setCurrentStep] = useState(1);
@@ -26,21 +23,40 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
     { label: "Meeting Room 10", path: "/meeting-10-slots" },
   ];
 
-  // booking state
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedStartTime, setSelectedStartTime] = useState(null);
-  const [selectedEndTime, setSelectedEndTime] = useState(null);
+  // Booking state
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedStartTime, setSelectedStartTime] = useState<string | null>(null);
+  const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
 
-  // validation per step
+  const pricePerHour = workspace?.price ?? 0;
+  const totalPrice = selectedDuration ? pricePerHour * selectedDuration : null;
+
+  const getTimeSlotDate = (date: Date, timeString: string): Date => {
+    const [time, meridiem] = timeString.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
+    if (meridiem === "PM" && hours !== 12) hours += 12;
+    if (meridiem === "AM" && hours === 12) hours = 0;
+
+    const slot = new Date(date);
+    slot.setHours(hours, minutes, 0, 0);
+    return slot;
+  };
+
+  const computedEndTime = (() => {
+    if (!selectedDate || !selectedStartTime || !selectedDuration) return null;
+    const startDateTime = getTimeSlotDate(selectedDate, selectedStartTime);
+    const endDateTime = new Date(startDateTime);
+    endDateTime.setHours(startDateTime.getHours() + selectedDuration);
+    return format(endDateTime, "hh:mm a");
+  })();
+
   const canNext = () => {
     switch (currentStep) {
       case 1:
-        // step1: require both date + time
-        return !!(selectedDate && selectedStartTime && selectedEndTime);
+        return !!(selectedDate && selectedStartTime && selectedDuration);
       case 2:
-        // step2: require name + phone
         return guestName.trim() !== "" && guestPhone.trim() !== "";
       default:
         return true;
@@ -52,21 +68,78 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
       setCurrentStep((s) => s + 1);
     }
   };
+
   const goBack = () => {
     if (currentStep > 1) {
       setCurrentStep((s) => s - 1);
     }
   };
 
-  const handleSubmit = () => {
-    // your final booking logic
+  const handleSubmit = async () => {
+    try {
+      const user = supabase.auth.getUser(); // or getSession().user.id
+      const userId = user?.id || null;
+  
+      // Convert selectedDate and selectedStartTime into full datetime
+      const startDateTime = getTimeSlotDate(selectedDate, selectedStartTime);
+      const endDateTime = new Date(startDateTime);
+      endDateTime.setHours(startDateTime.getHours() + selectedDuration);
+  
+      let guestId = null;
+  
+      // If user is not logged in, create/find guest
+      if (!userId) {
+        const { data: existingGuest } = await supabase
+          .from("guests")
+          .select("id")
+          .eq("email", guestPhone)
+          .maybeSingle();
+  
+        if (existingGuest) {
+          guestId = existingGuest.id;
+        } else {
+          const { data: newGuest, error: guestError } = await supabase
+            .from("guests")
+            .insert({
+              full_name: guestName,
+              email: guestPhone,
+            })
+            .select()
+            .single();
+  
+          if (guestError) throw guestError;
+          guestId = newGuest.id;
+        }
+      }
+  
+      // Insert booking
+      const { error: bookingError } = await supabase.from("bookings").insert([
+        {
+          user_id: userId,
+          guest_id: guestId,
+          workspace_id: workspace.id,
+          status: "confirmed",
+          start_time: startDateTime.toISOString(),
+          end_time: endDateTime.toISOString(),
+          price: totalPrice,
+        },
+      ]);
+  
+      if (bookingError) throw bookingError;
+  
+      alert("🎉 Booking successful!");
+      // Optionally: navigate to success page
+    } catch (err) {
+      console.error("Booking failed:", err);
+      alert("Something went wrong. Please try again.");
+    }
   };
 
   return (
     <div className="max-w-[1000px] space-y-10 flex flex-col items-center text-center">
       <Stepper steps={steps} currentStep={currentStep} />
 
-      <div className="grid grid-cols-4 gap-10 w-full">
+      <div className="grid grid-cols-4 gap-10 w-full text-[#d4a373]">
         {workspaceOptions.map((option) => {
           const isActive = location.pathname === option.path;
           return (
@@ -75,8 +148,8 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
               variant="outline"
               className={`w-full text-sm px-4 py-2 transition-all duration-200 ${
                 isActive
-                  ? "bg-black text-[#541919] font-semibold border border-[#541919]"
-                  : "hover:bg-[#f6ebd3]/60"
+                  ? "bg-[#f6ebd3]/60 text-black font-semibold border border-[#541919]"
+                  : "hover:bg-[#f6ebd3]/60 hover:text-black"
               }`}
               onClick={() => navigate(option.path)}
             >
@@ -88,17 +161,22 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
 
       <div className="space-y-6">
         {currentStep === 1 && (
-          <DateTimePicker
-            mode="full" 
-            selectedDate={selectedDate}
-            selectedStartTime={selectedStartTime}
-            selectedEndTime={selectedEndTime}
-            onDateChange={setSelectedDate}
-            onTimeChange={(start, end) => {
-              setSelectedStartTime(start);
-              setSelectedEndTime(end);
-            }}
-          />
+          <>
+            <DateTimePicker
+              mode="full"
+              selectedDate={selectedDate}
+              selectedStartTime={selectedStartTime}
+              selectedDuration={selectedDuration}
+              onDateChange={setSelectedDate}
+              onTimeChange={(start, duration) => {
+                setSelectedStartTime(start);
+                setSelectedDuration(duration);
+              }}
+              workspaceId={workspace.id}
+              workspaceQuantity={workspace.quantity}
+              pricePerHour={workspace.price}
+            />
+          </>
         )}
 
         {currentStep === 2 && (
@@ -114,19 +192,20 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
           <ConfirmReview
             date={selectedDate}
             startTime={selectedStartTime}
-            endTime={selectedEndTime}
+            endTime={computedEndTime}
             name={guestName}
             phone={guestPhone}
             workspace={workspace?.name}
+            pricePerHour={pricePerHour}
+            totalPrice={totalPrice}
           />
         )}
       </div>
 
-      <div className="flex justify-between">
+      <div className="flex justify-between w-full max-w-lg mt-4">
         <Button
           className={`${styles.sectionSubText}`}
           type="button"
-          // variant="outline"
           onClick={goBack}
           disabled={currentStep === 1}
         >
@@ -134,7 +213,7 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
         </Button>
 
         {currentStep < steps.length ? (
-          <Button 
+          <Button
             className={`${styles.sectionSubText} text-black`}
             type="button"
             onClick={goNext}
