@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { format, addDays, startOfWeek, addWeeks, startOfDay } from "date-fns";
-import { supabase } from "@/supabaseClient";
+import { format, addDays, startOfWeek, addWeeks, startOfDay, addMinutes } from "date-fns";
+import { supabase } from "@/lib/supabase"; // Adjust the import based on your project structure
 import { styles } from "../styles";
 
 // Generate 15-minute slots from 8:30 AM to 10:00 PM.
@@ -85,75 +85,60 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     }
   };
 
-  const getUnavailableSlots = (
-    bookings: { start_time: string; end_time: string }[],
-    quantity: number
-  ): string[] => {
-    const counts: Record<string, number> = {};
-
-    timeSlots.forEach((slot) => {
-      const slotStart = getTimeSlotDate(selectedDate!, slot);
-      const slotEnd = new Date(slotStart.getTime() + 15 * 60 * 1000);
-
-      bookings.forEach((booking) => {
-        const bookingStart = new Date(booking.start_time);
-        const bookingEnd = new Date(booking.end_time);
-
-        const overlaps = bookingStart < slotEnd && bookingEnd > slotStart;
-        if (overlaps) {
-          counts[slot] = (counts[slot] || 0) + 1;
-        }
-      });
-    });
-
-    return Object.entries(counts)
-      .filter(([_, count]) => count >= quantity)
-      .map(([slot]) => slot);
-  };
-
   const fullFormat = "EEEE, d MMMM yyyy";
 
+  const durationFits = (startDate: Date, durationHours: number) => {
+    const minutesNeeded = durationHours * 60;
+    for (let m = 0; m < minutesNeeded; m += 15) {
+      const sliceLabel = format(addMinutes(startDate, m), "hh:mm a");
+      if (unavailableSlots.includes(sliceLabel)) return false;
+    }
+    return true;
+  };
+
   useEffect(() => {
-    const fetchUnavailableSlots = async () => {
-      if (!selectedDate) return;
-  
+    const fetchBooked = async () => {
+      if (!selectedDate) return setUnavailableSlots([]);
+
       const startStr = format(selectedDate, "yyyy-MM-dd") + "T00:00:00";
       const endStr = format(selectedDate, "yyyy-MM-dd") + "T23:59:59";
-  
+
       const { data, error } = await supabase
         .from("bookings")
-        .select("start_time, end_time")
+        .select("start_time,end_time", { count: "exact" })
         .eq("workspace_id", workspaceId)
+        .in("status", ["confirmed", "checked_in"]) // ignore cancelled
         .gte("start_time", startStr)
         .lte("end_time", endStr);
-  
+
       if (error) {
-        console.error("Supabase booking fetch error:", error);
+        console.error("Could not fetch bookings", error);
         return;
       }
-  
-      const slotCounts: Record<string, number> = {};
-      timeSlots.forEach((slot) => {
-        const slotStart = getTimeSlotDate(selectedDate, slot);
-        const slotEnd = new Date(slotStart.getTime() + 15 * 60 * 1000);
-        data.forEach(({ start_time, end_time }) => {
+
+      // count how many rooms are used per slice
+      const sliceCounts: Record<string, number> = {};
+      timeSlots.forEach((slice) => (sliceCounts[slice] = 0));
+
+      data!.forEach(({ start_time, end_time }) => {
+        timeSlots.forEach((slice) => {
+          const sliceStart = getTimeSlotDate(selectedDate, slice);
+          const sliceEnd = addMinutes(sliceStart, 15);
           const bStart = new Date(start_time);
           const bEnd = new Date(end_time);
-          if (bStart < slotEnd && bEnd > slotStart) {
-            slotCounts[slot] = (slotCounts[slot] || 0) + 1;
-          }
+          const overlaps = bStart < sliceEnd && bEnd > sliceStart;
+          if (overlaps) sliceCounts[slice] += 1;
         });
       });
-  
-      const unavailable = Object.entries(slotCounts)
-        .filter(([_, count]) => count >= workspaceQuantity)
-        .map(([slot]) => slot);
-  
-      setUnavailableSlots(unavailable);
+
+      const fullSlices = Object.keys(sliceCounts).filter(
+        (k) => sliceCounts[k] >= workspaceQuantity
+      );
+      setUnavailableSlots(fullSlices);
     };
-  
-    fetchUnavailableSlots();
-  }, [selectedDate, workspaceId, workspaceQuantity]);  
+
+    fetchBooked();
+  }, [selectedDate, workspaceId, workspaceQuantity, timeSlots]);
 
   return (
     <div style={styles.container}>

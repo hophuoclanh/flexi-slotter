@@ -1,7 +1,7 @@
 // pages/WorkspacePage.tsx
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "@/supabaseClient";
+import { supabase } from "@/lib/supabase"; // Adjust the import based on your project structure
 import BookingFlow from "@/components/BookingFlow";
 
 export default function WorkspacePage() {
@@ -29,7 +29,6 @@ export default function WorkspacePage() {
   }, [id]);
 
   if (loading) return <div>Loading...</div>;
-  if (!workspace) return <div>Workspace not found</div>;
 
   return <BookingFlow workspace={workspace} />;
 }
