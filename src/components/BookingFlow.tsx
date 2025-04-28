@@ -92,7 +92,7 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
         const { data: existingGuest } = await supabase
           .from("guests")
           .select("id")
-          .eq("email", guestPhone)
+          .eq("phone_number", guestPhone)
           .maybeSingle();
   
         if (existingGuest) {
@@ -102,7 +102,7 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
             .from("guests")
             .insert({
               full_name: guestName,
-              email: guestPhone,
+              phone_number: guestPhone,
             })
             .select()
             .single();

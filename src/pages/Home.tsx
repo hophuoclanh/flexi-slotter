@@ -1,5 +1,4 @@
 // Home.tsx
-import React from "react";
 import {
   PublicBookingPage,
   Booking,

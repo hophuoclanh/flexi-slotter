@@ -38,7 +38,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Tabs,
@@ -112,7 +111,6 @@ const ManageWorkspaces = () => {
   const openEditDialog = (workspace: Workspace) => {
     workspaceForm.reset({
       name: workspace.name,
-      capacity: workspace.capacity,
       quantity: workspace.quantity,
     });
     setSelectedWorkspace(workspace);
@@ -315,7 +313,6 @@ const ManageWorkspaces = () => {
                           </Button>
                         </div>
                       </div>
-                      <CardDescription>Capacity: {workspace.capacity}</CardDescription>
                     </CardHeader>
                   </Card>
                 ))}

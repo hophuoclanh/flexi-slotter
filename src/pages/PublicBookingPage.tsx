@@ -1,21 +1,10 @@
 // PublicBookingPage.tsx
-import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
-import { useToast } from "@/hooks/use-toast";
 import { supabase, Workspace } from "@/lib/supabase";
-import { useForm } from "react-hook-form";
 import { styles } from "../styles";
 import Slideshow from "@/components/Slideshow";
-import { navLinks } from "../constants";
-
-type PublicBookingFormValues = {
-  guestName: string;
-  guestEmail: string;
-  guestPhone: string;
-};
 
 const homePageImages = [
   "./home_page/home_page.jpg",
@@ -25,8 +14,6 @@ const homePageImages = [
 
 const PublicBookingPage = () => {
   const { workspaceId } = useParams();
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   // Fetch workspace details
   const {

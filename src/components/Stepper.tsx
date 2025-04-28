@@ -17,7 +17,7 @@ export default function Stepper({ steps = [], currentStep = 1 }) {
             ? 'bg-white border-[var(--primary-color)] text-[var(--primary-color)]'
             : 'bg-white border-[var(--border-color)] text-[var(--secondary-color)]'
         ].join(' ');
-
+ 
         const labelClasses = [
           'text-sm mt-2',
           isCompleted || isActive

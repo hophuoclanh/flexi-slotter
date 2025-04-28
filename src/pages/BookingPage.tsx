@@ -149,7 +149,6 @@ const BookingPage = () => {
                     </div>
                     <CardHeader>
                       <CardTitle>{ws.name}</CardTitle>
-                      <CardDescription>Capacity: {ws.capacity}</CardDescription>
                     </CardHeader>
                     <CardFooter>
                       <Button className="w-full" onClick={() => handleSelectWorkspace(ws.id)}>
@@ -185,7 +184,6 @@ const BookingPage = () => {
                       <Building2 className="h-5 w-5 text-primary" />
                       <CardTitle>{workspace.name}</CardTitle>
                     </div>
-                    <CardDescription>Capacity: {workspace.capacity}</CardDescription>
                   </CardHeader>
                 </Card>
 

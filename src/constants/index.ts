@@ -20,9 +20,6 @@ import {
     tripguide,
     threejs,
     workspace,
-    conference,
-    meeting_room,
-    office,
   } from "../assets";
   
   export const navLinks = [

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import Layout from "@/components/Layout";
@@ -8,12 +8,9 @@ import { supabase, Workspace } from "@/lib/supabase";
 import { useForm } from "react-hook-form";
 import { styles } from "../styles";
 import Slideshow from "@/components/Slideshow";
-import { navLinks } from "../constants";
-import BookingDateTimePicker from "@/components/BookingDateTimePicker";
-import Stepper from '@/components/Stepper';
 import BookingFlow from "@/components/BookingFlow";
 import { motion } from "framer-motion";
-import { fadeIn, textVariant } from "../utils/motion";
+import { fadeIn } from "../utils/motion";
 
 type PublicBookingFormValues = {
   guestName: string;
