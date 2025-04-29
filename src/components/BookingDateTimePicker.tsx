@@ -2,27 +2,7 @@ import React, { useState, useEffect } from "react";
 import { format, addDays, startOfWeek, addWeeks, startOfDay, addMinutes } from "date-fns";
 import { supabase } from "@/lib/supabase"; // Adjust the import based on your project structure
 import { styles } from "../styles";
-
-// Generate 15-minute slots from 8:30 AM to 10:00 PM.
-const generateTimeSlots = (): string[] => {
-  const slots: string[] = [];
-  const startHour = 8;
-  const startMin = 30;
-  const endHour = 21;
-
-  let current = new Date();
-  current.setHours(startHour, startMin, 0, 0);
-
-  while (
-    current.getHours() < endHour ||
-    (current.getHours() === endHour && current.getMinutes() === 0)
-  ) {
-    slots.push(format(current, "hh:mm a"));
-    current = new Date(current.getTime() + 15 * 60 * 1000);
-  }
-
-  return slots;
-};
+import { TIME_SLOTS } from "@/lib/timeSlots";
 
 // Combine a date with a time string into a Date object.
 const getTimeSlotDate = (date: Date, timeString: string): Date => {
@@ -73,7 +53,8 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   const days = Array.from({ length: 7 }).map((_, i) =>
     addDays(currentWeekStart, i)
   );
-  const timeSlots = generateTimeSlots();
+
+  const timeSlots = TIME_SLOTS;
 
   const handlePrevWeek = () => setCurrentWeekStart((w) => addWeeks(w, -1));
   const handleNextWeek = () => setCurrentWeekStart((w) => addWeeks(w, 1));
@@ -122,6 +103,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
       const startStr = format(selectedDate, "yyyy-MM-dd") + "T00:00:00";
       const endStr = format(selectedDate, "yyyy-MM-dd") + "T23:59:59";
 
+      // console.time('Fetch bookings');
       const { data, error } = await supabase
         .from("bookings")
         .select("start_time,end_time", { count: "exact" })
@@ -129,6 +111,8 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
         .in("status", ["confirmed", "checked_in"]) // ignore cancelled
         .gte("start_time", startStr)
         .lte("end_time", endStr);
+      
+      // console.timeEnd('Fetch bookings');
 
       if (error) {
         console.error("Could not fetch bookings", error);
@@ -208,6 +192,8 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
           <h3 style={styles.selectTimeHeading}>Select a time slot</h3>
           <div style={styles.timeSlotsContainer}>
             {timeSlots.map((time) => {
+              console.log('Render slot', time);
+
               const slotDate = getTimeSlotDate(selectedDate, time);
               const now = new Date();
               const disabled = (() => {
@@ -238,7 +224,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                   }}
                 >
                   {time}
-                </button>
+                </button> 
               );
             })}
           </div>
