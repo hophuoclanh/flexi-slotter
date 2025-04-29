@@ -36,6 +36,12 @@ const getTimeSlotDate = (date: Date, timeString: string): Date => {
   return slot;
 };
 
+const toVietnamTime = (utcDateString: string): Date => {
+  const date = new Date(utcDateString);
+  date.setHours(date.getHours() + 7);
+  return date;
+};
+
 interface DateTimePickerProps {
   mode: "full";
   selectedDate: Date | null;
@@ -78,12 +84,25 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   };
 
   const handleTimeClick = (time: string) => {
-    if (selectedStartTime === time) {
-      onTimeChange(null, null);
-    } else {
-      onTimeChange(time, null);
+    const startDateTime = getTimeSlotDate(selectedDate!, time);
+    const minutesNeeded = 60; // 1 hour = 60 minutes
+    let valid = true;
+  
+    for (let m = 0; m < minutesNeeded; m += 15) {
+      const slotLabel = format(addMinutes(startDateTime, m), "hh:mm a");
+      if (unavailableSlots.includes(slotLabel)) {
+        valid = false;
+        break;
+      }
     }
-  };
+  
+    if (valid) {
+      onTimeChange(time, 1); // default duration = 1 hr
+    } else {
+      alert("Please select a time with at least 1-hour availability.");
+      onTimeChange(null, null);
+    }
+  };  
 
   const fullFormat = "EEEE, d MMMM yyyy";
 
@@ -121,15 +140,16 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
       timeSlots.forEach((slice) => (sliceCounts[slice] = 0));
 
       data!.forEach(({ start_time, end_time }) => {
+        const bStart = toVietnamTime(start_time);
+        const bEnd = toVietnamTime(end_time);
+      
         timeSlots.forEach((slice) => {
           const sliceStart = getTimeSlotDate(selectedDate, slice);
           const sliceEnd = addMinutes(sliceStart, 15);
-          const bStart = new Date(start_time);
-          const bEnd = new Date(end_time);
           const overlaps = bStart < sliceEnd && bEnd > sliceStart;
           if (overlaps) sliceCounts[slice] += 1;
         });
-      });
+      });      
 
       const fullSlices = Object.keys(sliceCounts).filter(
         (k) => sliceCounts[k] >= workspaceQuantity
@@ -190,7 +210,20 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
             {timeSlots.map((time) => {
               const slotDate = getTimeSlotDate(selectedDate, time);
               const now = new Date();
-              const disabled = slotDate < now || unavailableSlots.includes(time);
+              const disabled = (() => {
+                const slotDateTime = getTimeSlotDate(selectedDate, time);
+                const now = new Date();
+                if (slotDateTime < now) return true;
+              
+                // Check if 4 consecutive slots are available
+                for (let m = 0; m < 60; m += 15) {
+                  const slotLabel = format(addMinutes(slotDateTime, m), "hh:mm a");
+                  if (unavailableSlots.includes(slotLabel)) {
+                    return true;
+                  }
+                }
+                return false;
+              })();              
               const isSelected = time === selectedStartTime;
 
               return (
@@ -226,18 +259,32 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                 (maxEndTime.getTime() - startDateTime.getTime()) / (1000 * 60 * 60)
               );
 
-              return Array.from({ length: availableHours }, (_, i) => i + 1).map((hour) => (
-                <button
-                  key={hour}
-                  onClick={() => onTimeChange(selectedStartTime, hour)}
-                  style={{
-                    ...styles.timeSlotButton,
-                    ...(selectedDuration === hour ? styles.timeSlotSelected : {}),
-                  }}
-                >
-                  {hour} hr{hour > 1 ? "s" : ""}
-                </button>
-              ));
+              return Array.from({ length: availableHours }, (_, i) => i + 1).map((hour) => {
+                const minutesNeeded = hour * 60;
+                let valid = true;
+                for (let m = 0; m < minutesNeeded; m += 15) {
+                  const slotLabel = format(addMinutes(startDateTime, m), "hh:mm a");
+                  if (unavailableSlots.includes(slotLabel)) {
+                    valid = false;
+                    break;
+                  }
+                }
+
+                if (!valid) return null;
+
+                return (
+                  <button
+                    key={hour}
+                    onClick={() => onTimeChange(selectedStartTime, hour)}
+                    style={{
+                      ...styles.timeSlotButton,
+                      ...(selectedDuration === hour ? styles.timeSlotSelected : {}),
+                    }}
+                  >
+                    {hour} hr{hour > 1 ? "s" : ""}
+                  </button>
+                );
+              });
             })()}
           </div>
         </div>
