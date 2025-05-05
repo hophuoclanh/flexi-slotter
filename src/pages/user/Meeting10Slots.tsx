@@ -6,11 +6,11 @@ import Layout from "@/components/Layout";
 import { useToast } from "@/hooks/use-toast";
 import { supabase, Workspace } from "@/lib/supabase";
 import { useForm } from "react-hook-form";
-import { styles } from "../styles";
+import { styles } from "../../styles";
 import Slideshow from "@/components/Slideshow";
 import BookingFlow from "@/components/BookingFlow";
 import { motion } from "framer-motion";
-import { fadeIn, textVariant } from "../utils/motion";
+import { fadeIn, textVariant } from "../../utils/motion";
 
 type PublicBookingFormValues = {
   guestName: string;

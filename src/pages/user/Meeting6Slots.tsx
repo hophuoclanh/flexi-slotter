@@ -6,11 +6,11 @@ import Layout from "@/components/Layout";
 import { useToast } from "@/hooks/use-toast";
 import { supabase, Workspace } from "@/lib/supabase";
 import { useForm } from "react-hook-form";
-import { styles } from "../styles";
+import { styles } from "../../styles";
 import Slideshow from "@/components/Slideshow";
 import BookingFlow from "@/components/BookingFlow";
 import { motion } from "framer-motion";
-import { fadeIn, textVariant } from "../utils/motion";
+import { fadeIn, textVariant } from "../../utils/motion";
 
 type PublicBookingFormValues = {
   guestName: string;
@@ -19,13 +19,13 @@ type PublicBookingFormValues = {
 };
 
 const homePageImages = [
-  "./single_pod/single_pod_1.jpg",
-  "./single_pod/single_pod_2.jpg",
-  "./single_pod/single_pod_3.jpg",
+  "./meeting_6/meeting_6.jpg",
+  "./meeting_6/meeting_6_1.jpg",
+  "./meeting_6/meeting_6_2.jpg",
 ];
 
 const SinglePodSlots = () => {
-  const workspaceId = 10;
+  const workspaceId = 12;
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -124,7 +124,7 @@ const SinglePodSlots = () => {
           >
             <Slideshow images={homePageImages} interval={5000} />
             <p className={`${styles.sectionSubText} text-center mt-8`}>
-              Single Pod: 45.000 VND / hour
+              Meeting 6: 150.000 VND / hour
             </p>
           </motion.div>
         </div>

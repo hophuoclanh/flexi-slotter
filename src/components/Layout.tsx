@@ -143,7 +143,11 @@ const Layout = ({ children, hideSidebar = false }: LayoutProps) => {
 
         <div className="ml-auto flex items-center gap-4">
           {/* If user is logged in, show My Account dropdown; otherwise show Sign in / Sign up */}
-          {user ? <AuthenticatedUserMenu /> : <PublicUserMenu />}
+          {user ? (
+            <AuthenticatedUserMenu />
+          ) : location.pathname !== "/login" && location.pathname !== "/signup" ? (
+            <PublicUserMenu />
+          ) : null}
         </div>
       </header>
 

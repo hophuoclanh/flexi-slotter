@@ -1,10 +1,10 @@
 import PublicBookingPage from "./PublicBookingPage";
 import Home from "./Home";
 import Booking from "./Booking";
-import SinglePodSlots from "./SinglePodSlots";
-import DoublePodSlots from "./DoublePodSlots";
-import Meeting6Slots from "./Meeting6Slots";
-import Meeting10Slots from "./Meeting10Slots";
+import SinglePodSlots from "./user/SinglePodSlots";
+import DoublePodSlots from "./user/DoublePodSlots";
+import Meeting6Slots from "./user/Meeting6Slots";
+import Meeting10Slots from "./user/Meeting10Slots";
 
 export { 
     PublicBookingPage ,

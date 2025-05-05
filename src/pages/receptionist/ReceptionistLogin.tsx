@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import Layout from "@/components/Layout";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -30,7 +30,7 @@ interface User {
   // Add additional properties if needed
 }
 
-const Login = () => {
+const ReceptionistLogin = () => {
   const { signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -61,15 +61,13 @@ const Login = () => {
   };  
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-md space-y-8">
-        <div className="flex flex-col items-center justify-center text-center">
-          <Building2 className="h-12 w-12 text-primary" />
-          <h1 className="mt-4 text-3xl font-bold">FlexiSpace</h1>
-          <h2 className="mt-2 text-xl">Sign in to your account</h2>
-        </div>
-
-        <div className="mt-8 rounded-lg border bg-card p-8 shadow-sm">
+    <Layout hideSidebar>
+      <div className="flex flex-col items-center justify-center bg-primary px-4 py-24">
+        <div className="w-full max-w-md space-y-8 mt-8 rounded-3xl border bg-card p-12 shadow-sm">
+          <div className="flex items-center justify-center mb-4">
+            <p className="font-bold text-4xl"> Login </p>
+          </div>
+   
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
@@ -77,11 +75,11 @@ const Login = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="yourname@example.com"
+                        placeholder="Enter Email"
                         type="email"
+                        className="text-black"
                         {...field}
                       />
                     </FormControl>
@@ -95,11 +93,11 @@ const Login = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Your password"
+                        placeholder="Password"
                         type="password"
+                        className="text-black"
                         {...field}
                       />
                     </FormControl>
@@ -107,28 +105,22 @@ const Login = () => {
                   </FormItem>
                 )}
               />
-
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                className="w-full bg-[#d4a373] text-white hover:bg-[#bc855f] mx-auto block" 
+                disabled={isLoading}
+              >
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
           </Form>
-
-          <div className="mt-6 text-center text-sm">
-            <p>
-              Don't have an account?{" "}
-              <Link
-                to="/signup"
-                className="font-semibold text-primary hover:text-primary/80"
-              >
-                Sign up
-              </Link>
-            </p>
-          </div>
+        </div>
+        <div className="py-8">
+          <p> Copyright @wework 2022 | Privacy Policy</p>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
-export default Login;
+export default ReceptionistLogin;

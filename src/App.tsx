@@ -13,7 +13,8 @@ import AdminRoute from "@/components/AdminRoute";
 import Home from "./pages/Home";
 
 // Other Pages
-import Login from "./pages/Login";
+import Login from "./pages/user/Login";
+import ReceptionistLogin from "./pages/receptionist/ReceptionistLogin";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import BookingPage from "./pages/BookingPage";
@@ -23,10 +24,10 @@ import ManageWorkspaces from "./pages/ManageWorkspaces";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import BookingSuccess from "./pages/BookingSuccess";
-import SinglePodSlots from "./pages/SinglePodSlots";
-import DoublePodSlots from "./pages/DoublePodSlots";
-import Meeting6Slots from "./pages/Meeting6Slots";
-import Meeting10Slots from "./pages/Meeting10Slots";
+import SinglePodSlots from "./pages/user/SinglePodSlots";
+import DoublePodSlots from "./pages/user/DoublePodSlots";
+import Meeting6Slots from "./pages/user/Meeting6Slots";
+import Meeting10Slots from "./pages/user/Meeting10Slots";
 import WorkspacePage from "./pages/WorkspacePage";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
           <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
+            <Route path="/receptionist-login" element={<ReceptionistLogin />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/public-booking/:workspaceId?" element={<PublicBookingPage />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
