@@ -26,7 +26,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 // Define the User type to include a role property
 interface User {
-  role: "admin" | "user";
+  role: "admin" | "user" | "receptionist";
   // Add additional properties if needed
 }
 
@@ -48,8 +48,8 @@ const ReceptionistLogin = () => {
     setIsLoading(true);
     try {
       const sessionUser = await signIn(data.email, data.password);
-      if (sessionUser?.role === "admin") {
-        navigate("/admin");
+      if (sessionUser?.role === "receptionist") {
+        navigate("/receptionist-dashboard");
       } else {
         navigate("/dashboard");
       }

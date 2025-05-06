@@ -15,11 +15,12 @@ import Home from "./pages/Home";
 // Other Pages
 import Login from "./pages/user/Login";
 import ReceptionistLogin from "./pages/receptionist/ReceptionistLogin";
+import ReceptionistDashboard from "./pages/receptionist/ReceptionistDashboard";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboard";
 import BookingPage from "./pages/BookingPage";
 import PublicBookingPage from "./pages/PublicBookingPage";
-import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import ManageWorkspaces from "./pages/ManageWorkspaces";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -43,6 +44,7 @@ const App = () => (
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/receptionist-login" element={<ReceptionistLogin />} />
+            <Route path="/receptionist-dashboard" element={<ReceptionistDashboard />} />
             <Route path="/signup" element={<SignUp />} />
             <Route path="/public-booking/:workspaceId?" element={<PublicBookingPage />} />
             <Route path="/booking-success" element={<BookingSuccess />} />

@@ -42,6 +42,11 @@ const Layout = ({ children, hideSidebar = false }: LayoutProps) => {
         { name: "Admin Dashboard", href: "/admin", icon: Settings },
         { name: "Manage Workspaces", href: "/admin/workspaces", icon: Settings },
       ]
+    : profile?.role === "receptionist"
+    ? [
+        { name: "Receptionist Dashboard", href: "/receptionist-dashboard", icon: User },
+        { name: "Manage Workspaces", href: "/admin/workspaces", icon: Settings },
+      ]
     : [
         { name: "Dashboard", href: "/dashboard", icon: Building2 },
         { name: "Book Space", href: "/booking", icon: Calendar },
@@ -55,7 +60,7 @@ const Layout = ({ children, hideSidebar = false }: LayoutProps) => {
         className={cn(
           "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all",
           isActive
-            ? "bg-primary text-primary-foreground"
+            ? "bg-[#D9BFBF] text-primary-foreground"
             : "text-muted-foreground hover:bg-secondary hover:text-foreground"
         )}
       >
@@ -154,7 +159,7 @@ const Layout = ({ children, hideSidebar = false }: LayoutProps) => {
       {/* Main Content with optional sidebar */}
       <div className="flex flex-1">
         {!isMobile && !hideSidebar && (
-          <aside className="hidden w-64 flex-col border-r bg-background md:flex">
+          <aside className="hidden w-64 flex-col border-r bg-[#541919] md:flex">
             <div className="flex flex-col gap-2 p-4">
               {navigation.map((item) => (
                 <NavLink key={item.name} item={item} />
