@@ -115,8 +115,8 @@ const SinglePodSlots = () => {
   
   return (
     <Layout hideSidebar>
-      <div className="flex flex-col md:flex-row justify-center gap-20 md:gap-20 px-32 py-10">
-        <div className="w-full max-w-[575px]">
+      <div className="flex flex-col md:flex-row py-10">
+        <div className="w-full max-w-[500px]">
           <motion.div
             variants={fadeIn("right", "spring", 0.2, 0.75)}
             initial="hidden"
@@ -128,7 +128,7 @@ const SinglePodSlots = () => {
             </p>
           </motion.div>
         </div>
-        <div className={`${styles.sectionSubText} max-w-10xl mx-auto flex flex-col`}>
+        <div className={`${styles.sectionSubText} max-w-[100px] mx-[40px] flex flex-col`}>
           <motion.div
             variants={fadeIn("left", "spring", 0.2, 0.75)}
             initial="hidden"

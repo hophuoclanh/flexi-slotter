@@ -35,28 +35,43 @@ const PublicBookingPage = () => {
 
   return (
     <Layout hideSidebar>
-      <div className="flex flex-col md:flex-row justify-center gap-20 md:gap-20 px-12 py-24 ">
-        <div className='flex flex-col items-center py-8'>
-          <div className='w-5 h-5 rounded-full bg-[#d4a373]' />
-          <div className='w-1 sm:h-80 h-40 violet-gradient' />
-        </div>
+      <div className="flex flex-col xl:flex-row justify-center gap-5 xl:gap-20 px-5 xl:px-12 py-2 xl:py-24">
+        <div className="flex flex-row gap-8">
+            <div className='flex flex-col items-center py-5 xl:py-8'>
+            <div className='w-5 h-5 rounded-full bg-[#d4a373]' />
+            <div className='w-1 sm:h-80 h-40 violet-gradient' />
+          </div>
 
-        <div>
-          <h1 className={`${styles.heroHeadText} text-white`}>
-            Lets Find Your <br />
-            Perfect <span className='text-[#d4a373]'>Place to Work</span>
-          </h1>
-          <p className={`${styles.heroSubText} mt-2 text-white-100`}>
-            Book a space that fits your flow - from solo desks to team rooms.
-          </p>
+          <div>
+            <h1 className={`${styles.heroHeadText} text-white`}>
+              Lets Find Your <br />
+              Perfect <span className='text-[#d4a373]'>Place to Work</span>
+            </h1>
+            <p className={`${styles.heroSubText} mt-5 xl:mt-12 text-white-100`}>
+              Book a space that fits your flow - from solo desks to team rooms.
+            </p>
 
-          <div className="mt-12 gap-4">
-            <a
-              href='#booking' // This creates a link to "#booking"
-              className="px-8 py-3 bg-[#d4a373] rounded-md text-xl font-bold hover:bg-[#c29365] transition-colors"
-            >
-              Book Your Spot
-            </a>
+            <div className="mt-7 xl:mt-20 gap-4">
+              <button
+                onClick={() => {
+                  const el = document.getElementById("booking");
+                  if (el) {
+                    let yOffset = 0;
+                    const width = window.innerWidth;
+
+                    if (width < 768) yOffset = 90;
+                    else if (width < 1280) yOffset = -80;
+                    else yOffset = -120;
+
+                    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    window.scrollTo({ top: y, behavior: "smooth" });
+                  }
+                }}
+                className="px-8 py-3 bg-[#d4a373] rounded-md text-sm xl:text-xl font-bold hover:bg-[#c29365] transition-colors"
+              >
+                Book Your Spot
+              </button>
+            </div>
           </div>
         </div>
 

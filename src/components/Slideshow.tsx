@@ -29,7 +29,7 @@ export default function Slideshow({ images, interval = 5000 }: SlideshowProps) {
 
   return (
     <>
-      <div className="relative w-full h-[600px] flex overflow-hidden">
+      <div className="relative w-full h-[300px] xl:h-[600px] flex overflow-hidden">
         {images.map((src, index) => (
           <div
             key={index}

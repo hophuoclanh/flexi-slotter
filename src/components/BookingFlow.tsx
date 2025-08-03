@@ -136,10 +136,10 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
   };
 
   return (
-    <div className="max-w-[1000px] space-y-10 flex flex-col items-center text-center">
+    <div className="max-w-[1000px] space-y-10 items-center text-center">
       <Stepper steps={steps} currentStep={currentStep} />
 
-      <div className="grid grid-cols-4 gap-10 w-full text-[#d4a373]">
+      <div className="grid grid-cols-4 gap-6 w-[830px] text-[#d4a373]">
         {workspaceOptions.map((option) => {
           const isActive = location.pathname === option.path;
           return (

@@ -76,27 +76,29 @@ const ImageCard = ({ index, image }) => {
 
 const Booking = () => {
   return (
-    <div className="px-64">
-      <motion.div variants={textVariant()}>
-        <h2 className={`${styles.sectionHeadText}`}>
-          Book Your <span className="text-[#d4a373]">Workspace</span>
-        </h2>
-      </motion.div>
+    <div className=" mx-auto justify-center px-8 xl:px-12 w-[1500px]">
+      <div className="flex flex-col">
+        <motion.div variants={textVariant()}>
+          <h2 className={`${styles.sectionHeadText}`}>
+            Book Your <span className="text-[#d4a373]">Workspace</span>
+          </h2>
+        </motion.div>
 
-      <motion.p
-        variants={fadeIn("", "", 0.1, 1)}
-        className="mt-4 text-secondary text-[17px] max-w-3xl leading-[30px]"
-      >
-        At South Ground, we understand that no work style is the same.
-        That’s why we offer a range of thoughtfully designed workspaces — from
-        single pods to meeting rooms with fully equipped spaces.
-        Whether you're a freelancer, a startup team, or hosting a workshop, we’ve
-        got a spot that fits your needs. Explore our solutions and find the perfect
-        space to focus, collaborate, and grow.
-      </motion.p>
+        <motion.p
+          variants={fadeIn("", "", 0.1, 1)}
+          className="mt-4 text-secondary text-[12px] w-[300px] leading-[30px]"
+        >
+          At South Ground, we understand that no work style is the same.
+          That’s why we offer a range of thoughtfully designed workspaces — from
+          single pods to meeting rooms with fully equipped spaces.
+          Whether you're a freelancer, a startup team, or hosting a workshop, we’ve
+          got a spot that fits your needs. Explore our solutions and find the perfect
+          space to focus, collaborate, and grow.
+        </motion.p>
+      </div>
 
       {/* 3. Map over our updated images array */}
-      <div className="flex flex-wrap gap-32 py-10">
+      <div className="flex flex-col xl:flex-row gap-[6rem] py-10">
         {images.map((item, idx) => (
           <motion.div
             key={idx}

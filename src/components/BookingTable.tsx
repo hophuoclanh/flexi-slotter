@@ -151,8 +151,8 @@ export const BookingTable = () => {
               <tr>
                 <th className="px-4 py-2">#</th>
                 <th className="px-4 py-2">Customer</th>
-                <th className="px-4 py-2">Check-In</th>
-                <th className="px-4 py-2">Checkout</th>
+                <th className="px-4 py-2">Start time</th>
+                <th className="px-4 py-2">End time</th>
                 <th className="px-4 py-2">Booked</th>
                 <th className="px-4 py-2">Workspace</th>
                 <th className="px-4 py-2">Total Payout</th>
