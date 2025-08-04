@@ -4,7 +4,7 @@ import { styles } from "../styles"; // adjust the path
 
 export default function GuestForm({ name, phone, onNameChange, onPhoneChange }) {
   return (
-    <div style={styles.guest_container} className="mt-8">
+    <div>
       <div className="flex flex-col gap-4">
         <label htmlFor="guestName" className="font-bold">
           Name
@@ -20,7 +20,7 @@ export default function GuestForm({ name, phone, onNameChange, onPhoneChange }) 
       </div>
 
       {/* Phone Field */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 mt-6">
         <label htmlFor="guestPhone" className="font-bold">
           Phone Number
         </label>

@@ -23,6 +23,7 @@ input:-webkit-autofill:focus {
   font-family: "Poppins", sans-serif;
   scroll-behavior: smooth;
   color-scheme: dark;
+  overflow-x: hidden;
 }
 
 .hash-span {

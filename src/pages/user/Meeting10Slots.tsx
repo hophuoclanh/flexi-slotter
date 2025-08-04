@@ -24,7 +24,7 @@ const homePageImages = [
   "./meeting_10/meeting_10_3.jpg",
 ];
 
-const SinglePodSlots = () => {
+const Meeting10Slots = () => {
   const workspaceId = 13;
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -115,8 +115,8 @@ const SinglePodSlots = () => {
   
   return (
     <Layout hideSidebar>
-      <div className="flex flex-col md:flex-row justify-center gap-20 md:gap-20 px-32 py-10">
-        <div className="w-full max-w-[575px]">
+      <div className="flex flex-col justify-center md:flex-row xl:py-10 xl:px-[20px]">
+        <div className="w-full max-w-[550px] py-10">
           <motion.div
             variants={fadeIn("right", "spring", 0.2, 0.75)}
             initial="hidden"
@@ -128,12 +128,12 @@ const SinglePodSlots = () => {
             </p>
           </motion.div>
         </div>
-        <div className={`${styles.sectionSubText} max-w-10xl mx-auto flex flex-col`}>
+        <div className={`${styles.sectionSubText} mx-0 xl:mx-[40px] xl:py-10 flex flex-col`}>
           <motion.div
             variants={fadeIn("left", "spring", 0.2, 0.75)}
             initial="hidden"
             animate="show"
-            className={`${styles.sectionSubText} max-w-10xl mx-auto flex flex-col`}
+            className={`${styles.sectionSubText} mx-auto flex flex-col`}
           >
             {!workspace ? (
               <p className="text-center text-red-500">Workspace not found.</p>
@@ -147,4 +147,4 @@ const SinglePodSlots = () => {
   );
 };
 
-export default SinglePodSlots;
+export default Meeting10Slots;

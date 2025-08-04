@@ -45,7 +45,7 @@ const ImageCard = ({ index, image }) => {
       scale={1}
       transitionSpeed={450}
     >
-      <div className="w-[300px] h-auto overflow-hidden rounded-[20px] shadow-md bg-white">
+      <div className="w-[300px] xl:w-auto h-auto overflow-hidden rounded-[20px] shadow-md bg-white">
         {/* The image */}
         <motion.img
           src={src}
@@ -76,7 +76,7 @@ const ImageCard = ({ index, image }) => {
 
 const Booking = () => {
   return (
-    <div className=" mx-auto justify-center px-8 xl:px-12 w-[1500px]">
+    <div className=" mx-auto justify-center px-8 xl:px-12 xl:w-[1500px]">
       <div className="flex flex-col">
         <motion.div variants={textVariant()}>
           <h2 className={`${styles.sectionHeadText}`}>
@@ -86,7 +86,7 @@ const Booking = () => {
 
         <motion.p
           variants={fadeIn("", "", 0.1, 1)}
-          className="mt-4 text-secondary text-[12px] w-[300px] leading-[30px]"
+          className="mt-4 text-secondary text-white-100 text-[12px] xl:text-[20px] w-[300px] xl:w-[800px] leading-[30px]"
         >
           At South Ground, we understand that no work style is the same.
           That’s why we offer a range of thoughtfully designed workspaces — from
@@ -98,11 +98,11 @@ const Booking = () => {
       </div>
 
       {/* 3. Map over our updated images array */}
-      <div className="flex flex-col xl:flex-row gap-[6rem] py-10">
+      <div className="flex flex-col xl:flex-row gap-10 xl:gap-[6rem] py-10">
         {images.map((item, idx) => (
           <motion.div
             key={idx}
-            variants={fadeIn("right", "spring", 0.5 * idx, 0.75)}
+            variants={fadeIn("right", "spring", 0.5 * idx, 0.5)}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}

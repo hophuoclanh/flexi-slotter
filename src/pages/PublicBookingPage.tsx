@@ -36,8 +36,8 @@ const PublicBookingPage = () => {
   return (
     <Layout hideSidebar>
       <div className="flex flex-col xl:flex-row justify-center gap-5 xl:gap-20 px-5 xl:px-12 py-2 xl:py-24">
-        <div className="flex flex-row gap-8">
-            <div className='flex flex-col items-center py-5 xl:py-8'>
+        <div className="flex flex-row gap-5 xl:gap-8">
+          <div className='w-20 flex flex-col items-center py-4 xl:py-8'>
             <div className='w-5 h-5 rounded-full bg-[#d4a373]' />
             <div className='w-1 sm:h-80 h-40 violet-gradient' />
           </div>
@@ -75,7 +75,7 @@ const PublicBookingPage = () => {
           </div>
         </div>
 
-        <div className="w-full max-w-[575px]">
+        <div className="w-full max-w-[575px] mt-5">
           <Slideshow images={homePageImages} interval={5000} />
         </div>
       </div>

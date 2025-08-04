@@ -79,10 +79,10 @@ const Layout = ({ children, hideSidebar = false }: LayoutProps) => {
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="flex flex-col">
-        <div className="px-2 py-4">
-          <h2 className="mb-2 px-4 text-lg font-semibold tracking-tight">
-            South Ground
-          </h2>
+        <div className="px-2 py-4 text-[#541919]">
+          <Link to="/" className="flex items-center gap-4">
+              <span className="text-xl font-bold">South Ground</span>
+          </Link>
           <div className="space-y-1">
             {navigation.map((item) => (
               <NavLink key={item.name} item={item} />

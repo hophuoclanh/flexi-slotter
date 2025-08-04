@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function Stepper({ steps = [], currentStep = 1 }) {
   return (
-    <div className="flex items-center bg-[var(--bg-color)] p-4 rounded-lg w-[830px]">
+    <div className="flex items-center bg-[var(--bg-color)] p-4 rounded-lg w-[330px] xl:w-[720px]">
       {steps.map((label, idx) => {
         const step = idx + 1;
         const isCompleted = step < currentStep;
@@ -19,9 +19,9 @@ export default function Stepper({ steps = [], currentStep = 1 }) {
         ].join(' ');
  
         const labelClasses = [
-          'text-sm mt-2',
+          'text-[10px] xl:text-sm',
           isCompleted || isActive
-            ? 'text-[var(--text-color)] font-semibold'
+            ? 'text-[var(--text-color)] font-semibold'  
             : 'text-[var(--secondary-color)]'
         ].join(' ');
 

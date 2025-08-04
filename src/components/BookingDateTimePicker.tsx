@@ -145,11 +145,11 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   }, [selectedDate, workspaceId, workspaceQuantity, timeSlots]);
 
   return (
-    <div style={styles.container}>
+    <div className="max-w-[1000px] w-full mx-auto p-4 border border-[#ccc] rounded-[20px] text-center font-[Poppins]">
       {/* Week navigation */}
-      <div style={styles.weekNav}>
+      <div className="flex justify-between items-center mb-4">
         <button onClick={handlePrevWeek}>&laquo;</button>
-        <div style={styles.currentWeekLabel}>
+        <div className="font-bold">
           {format(currentWeekStart, "dd MMM yyyy")} -{" "}
           {format(addDays(currentWeekStart, 6), "dd MMM yyyy")}
         </div>
@@ -157,27 +157,25 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
       </div>
 
       {/* Day picker row */}
-      <div style={styles.daysContainer}>
+      <div className="flex justify-center mb-8 text-[9px] xl:text-[15px] xl:gap-10">
         {days.map((day) => {
           const isPast = startOfDay(day) < startOfDay(new Date());
           const isSel =
             selectedDate &&
             format(day, "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd");
-
+          const isHover =
+            hoveredDay?.toDateString() === day.toDateString();
           return (
             <div
               key={day.toString()}
               onClick={() => !isPast && handleDateClick(day)}
               onMouseEnter={() => setHoveredDay(day)}
               onMouseLeave={() => setHoveredDay(null)}
-              style={{
-                ...styles.dayBox,
-                ...(isSel ? styles.dayBoxSelected : {}),
-                ...(isPast ? { opacity: 0.5, cursor: "not-allowed" } : {}),
-                ...(hoveredDay?.toDateString() === day.toDateString()
-                  ? { backgroundColor: "#f6ebd399", color: "white" }
-                  : {}),
-              }}
+              className={`text-center cursor-pointer p-2 rounded-md m-[2px] transition-all
+                ${isPast ? "opacity-50 cursor-not-allowed" : "bg-[#f6ebd3] text-[#d4a373]"}
+                ${isSel ? "bg-[#f6ebd399] text-black font-bold" : ""}
+                ${isHover && !isPast ? "bg-[#f6ebd399] text-white" : ""}
+              `}
             >
               <div>{format(day, "iii")}</div>
               <div>{format(day, "d MMM")}</div>
@@ -189,8 +187,8 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
       {/* Time slots */}
       {selectedDate && (
         <>
-          <h3 style={styles.selectTimeHeading}>Select a time slot</h3>
-          <div style={styles.timeSlotsContainer}>
+          <h3 className="mb-2">Select a time slot</h3>
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-4">
             {timeSlots.map((time) => {
               console.log('Render slot', time);
 
@@ -217,11 +215,10 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                   key={time}
                   onClick={() => !disabled && handleTimeClick(time)}
                   disabled={disabled}
-                  style={{
-                    ...styles.timeSlotButton,
-                    ...(isSelected ? styles.timeSlotSelected : {}),
-                    ...(disabled ? { opacity: 0.5, cursor: "not-allowed" } : {}),
-                  }}
+                  className={`border rounded px-4 py-2 text-sm transition-all
+                    ${isSelected ? "bg-[#d4a373] text-white border-[#d4a373]" : ""}
+                    ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+                  `}
                 >
                   {time}
                 </button> 
@@ -233,9 +230,9 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
       {/* Duration selection */}
       {selectedDate && selectedStartTime && (
-        <div style={{ marginTop: "1rem" }}>
-          <h3 style={styles.selectTimeHeading}>How long will you stay?</h3>
-          <div style={styles.timeSlotsContainer}>
+        <div className="mt-4">
+          <h3 className="mb-2">How long will you stay?</h3>
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mb-4">
             {(() => {
               const startDateTime = getTimeSlotDate(selectedDate, selectedStartTime);
               const maxEndTime = new Date(selectedDate);
@@ -262,10 +259,9 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
                   <button
                     key={hour}
                     onClick={() => onTimeChange(selectedStartTime, hour)}
-                    style={{
-                      ...styles.timeSlotButton,
-                      ...(selectedDuration === hour ? styles.timeSlotSelected : {}),
-                    }}
+                    className={`border rounded px-4 py-2 text-sm transition-all
+                      ${selectedDuration === hour ? "bg-[#d4a373] text-white border-[#d4a373]" : ""}
+                    `}
                   >
                     {hour} hr{hour > 1 ? "s" : ""}
                   </button>
@@ -278,7 +274,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
 
       {/* Display selected range */}
       {selectedDate && selectedStartTime && (
-        <div style={styles.selectedInfo}>
+        <div className="mb-4">
           <strong>Selected:</strong>{" "}
           {format(selectedDate, fullFormat)}, Start: {selectedStartTime}
           {selectedDuration ? (

@@ -136,20 +136,20 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
   };
 
   return (
-    <div className="max-w-[1000px] space-y-10 items-center text-center">
+    <div className="w-[350px] xl:w-[720px] space-y-10 items-center text-center justify-center">
       <Stepper steps={steps} currentStep={currentStep} />
 
-      <div className="grid grid-cols-4 gap-6 w-[830px] text-[#d4a373]">
+      <div className="flex flex-row text-[#d4a373] gap-1 xl:gap-3">
         {workspaceOptions.map((option) => {
           const isActive = location.pathname === option.path;
           return (
             <Button
               key={option.path}
               variant="outline"
-              className={`w-full text-sm px-4 py-2 transition-all duration-200 ${
+              className={`py-2 transition-all duration-200  break-words whitespace-normal text-center ${
                 isActive
-                  ? "bg-[#f6ebd3]/60 text-black font-semibold border border-[#541919]"
-                  : "hover:bg-[#f6ebd3]/60 hover:text-black"
+                  ? "p-1 w-[83px] xl:w-[200px] text-[10px] xl:text-[15px] bg-[#f6ebd3]/60 text-black font-semibold border border-[#541919]"
+                  : "p-1 w-[83px] xl:w-[200px] text-[10px] xl:text-[15px] hover:bg-[#f6ebd3]/60 hover:text-black"
               }`}
               onClick={() => navigate(option.path)}
             >
@@ -202,9 +202,9 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
         )}
       </div>
 
-      <div className="flex justify-between w-full max-w-lg mt-4">
+      <div className="flex justify-center gap-10 xl:gap-40 mt-4">
         <Button
-          className={`${styles.sectionSubText}`}
+          className="text-[16px] text-secondary uppercase tracking-wider"
           type="button"
           onClick={goBack}
           disabled={currentStep === 1}
@@ -214,7 +214,7 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
 
         {currentStep < steps.length ? (
           <Button
-            className={`${styles.sectionSubText} text-black`}
+            className="text-[15px] text-black uppercase tracking-wider"
             type="button"
             onClick={goNext}
             disabled={!canNext()}
@@ -224,7 +224,7 @@ export default function BookingFlow({ workspace }: { workspace: any }) {
           </Button>
         ) : (
           <Button
-            className={`${styles.sectionSubText} text-[#541919] font-bold`}
+            className="text-[15px] uppercase tracking-wider text-[#541919] font-bold"
             type="button"
             onClick={handleSubmit}
             variant="outline"

@@ -8,12 +8,12 @@ export default function ConfirmReview({ date, startTime, endTime, name, phone, w
   const formattedDate = date ? format(date, "EEEE, d MMMM yyyy") : "";
 
   return (
-    <div style={styles.confirm_container} className={`${styles.sectionSubText}shadow rounded-lg p-6 w-full max-w-md mx-auto`}>
+    <div className={`${styles.sectionSubText} shadow rounded-lg p-6 w-full max-w-md mx-auto`}>
       <h3 className="text-4xl font-semibold text-[#f6ebd3] m-4">
         Review Your Booking
       </h3>
       <div
-        className="w-full rounded-t-lg p-4 space-y-3 text-left text-[#541919]"
+        className="w-full rounded-lg p-4 space-y-3 text-left text-[#541919]"
         style={{ backgroundColor: "#f6ebd3" }}
       >
         <div>

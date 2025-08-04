@@ -29,7 +29,7 @@ export default function Slideshow({ images, interval = 5000 }: SlideshowProps) {
 
   return (
     <>
-      <div className="relative w-full h-[300px] xl:h-[600px] flex overflow-hidden">
+      <div className="rounded-xl relative w-full h-[400px] xl:h-[590px] flex overflow-hidden">
         {images.map((src, index) => (
           <div
             key={index}
@@ -40,7 +40,7 @@ export default function Slideshow({ images, interval = 5000 }: SlideshowProps) {
             <img
               src={src}
               alt={`Slide ${index}`}
-              className="w-full h-full object-cover"
+              className="w-full h-[400px] xl:h-[590px] object-cover"
             />
           </div>
         ))}
