@@ -61,7 +61,7 @@ const PublicBookingPage = () => {
 
                     if (width < 768) yOffset = 90;
                     else if (width < 1280) yOffset = -80;
-                    else yOffset = -120;
+                    else yOffset = 50;
 
                     const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
                     window.scrollTo({ top: y, behavior: "smooth" });
